@@ -86,7 +86,8 @@ jobs:
           target: google_apis
           disable-animations: true
           working-directory: worldpulse
-          script: ./gradlew :data:connectedDebugAndroidTest --console=plain
+          # Erst Schema erzeugen (KSP), dann Tests – sonst fehlt schemas/…/1.json in den Test-Assets.
+          script: ./gradlew :data:kspDebugKotlin --console=plain && ./gradlew :data:connectedDebugAndroidTest --console=plain && cat data/schemas/de.worldpulse.data.db.WorldPulseDb/1.json
       - if: always()
         uses: actions/upload-artifact@v4
         with:
