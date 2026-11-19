@@ -48,9 +48,13 @@ class MainActivity : ComponentActivity() {
         setContent { MaterialTheme(colorScheme = darkColorScheme()) { BenchScreen(modelDir) } }
     }
 
-    fun keepScreenOn(on: Boolean) {
+    /** Bildschirm an halten; im Auto-Modus mit minimaler Helligkeit (SPEC 4). */
+    fun keepScreenOn(on: Boolean, dim: Boolean = false) {
         if (on) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        window.attributes = window.attributes.apply {
+            screenBrightness = if (on && dim) 0.01f else WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+        }
     }
 }
 
@@ -61,6 +65,8 @@ private fun BenchScreen(modelDir: File) {
     val progress by BenchState.progress.collectAsStateWithLifecycle()
     val ticker by BenchState.ticker.collectAsStateWithLifecycle()
     val log by ResultLog.lines.collectAsStateWithLifecycle()
+    val subTest by BenchState.subTest.collectAsStateWithLifecycle()
+    val autoKeep by BenchState.keepScreen.collectAsStateWithLifecycle()
 
     var files by remember { mutableStateOf(scan(modelDir)) }
     val selLlm = remember { mutableStateListOf<File>() }
@@ -70,8 +76,12 @@ private fun BenchScreen(modelDir: File) {
     var fgsWithLlm by remember { mutableStateOf(false) }
     var showMap by remember { mutableStateOf(false) }
 
-    LaunchedEffect(running) { act.keepScreenOn(running == TestId.SCREEN_MAP || showMap) }
-    LaunchedEffect(running) { if (running == null && showMap) showMap = false }
+    val mapPhase = running == TestId.SCREEN_MAP || subTest == TestId.SCREEN_MAP
+    LaunchedEffect(running, subTest, autoKeep, showMap) {
+        act.keepScreenOn(mapPhase || showMap || autoKeep, dim = autoKeep && !mapPhase)
+    }
+    LaunchedEffect(mapPhase) { showMap = mapPhase }
+    LaunchedEffect(running) { files = scan(modelDir) }
 
     if (showMap) {
         BackHandler { showMap = false }
@@ -82,10 +92,11 @@ private fun BenchScreen(modelDir: File) {
     fun go(id: TestId) {
         val spec = TestSpec(id, selLlm.toList(), selEmb.toList(), backend, mtp, fgsWithLlm = fgsWithLlm)
         BenchService.start(act, spec)
-        if (id == TestId.SCREEN_MAP) showMap = true
     }
 
     Column(Modifier.fillMaxSize().background(Color.Black).padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("WP Bench – einfach: Ladekabel anstecken, WLAN an, oben „ALLES AUTOMATISCH“ drücken, Handy liegen lassen. " +
+            "Am Ende „CSV teilen“ und die Datei an Claude schicken.", fontSize = 13.sp, color = Color(0xFFFFE082))
         Text("Modelle in: ${modelDir.absolutePath}", fontSize = 11.sp, color = Color.Gray)
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             OutlinedButton(onClick = { files = scan(modelDir) }) { Text("Neu einlesen") }

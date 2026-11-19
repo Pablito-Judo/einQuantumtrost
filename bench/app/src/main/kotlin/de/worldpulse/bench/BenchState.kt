@@ -5,6 +5,8 @@ import java.io.File
 
 /** Alle Tests aus START_PROMPT Auftrag 1 (Nummern = Punkte 1–9). */
 enum class TestId(val label: String) {
+    AUTO_ALL("▶ ALLES AUTOMATISCH (Modelle laden + alle Tests, ca. 10–12 h)"),
+    DOWNLOAD("Modelle von Hugging Face laden"),
     MODEL_INFO("0 Modell-Info (Typ, MTP, Backends, NPU)"),
     LOAD_PREFILL_DECODE("1 Laden / Prefill 500-1000-2000 / Decode"),
     BACKEND_MATRIX("2 Backend-Matrix CPU/GPU/NPU"),
@@ -35,5 +37,9 @@ object BenchState {
     val progress = MutableStateFlow("")
     /** Letzter gestreamter LLM-Text (Anzeige in der Karten-Ansicht). */
     val ticker = MutableStateFlow("")
+    /** Gerade laufender Teil-Test (Auto-Modus): steuert z. B. die Karten-Ansicht. */
+    val subTest = MutableStateFlow<TestId?>(null)
+    /** Auto-Modus: Bildschirm an (minimale Helligkeit) bis zum Test "Bildschirm AUS". */
+    val keepScreen = MutableStateFlow(false)
     @Volatile var pending: TestSpec? = null
 }

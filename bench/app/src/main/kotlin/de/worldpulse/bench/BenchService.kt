@@ -17,6 +17,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -42,7 +43,7 @@ class BenchService : LifecycleService() {
         BenchState.pending = null
         startForeground(NOTIF_ID, notification("Läuft: ${spec.id.label}"), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
         wakeLock = getSystemService(PowerManager::class.java)
-            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wpbench:run").apply { acquire(10 * 60 * 60 * 1000L) }
+            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wpbench:run").apply { acquire(14 * 60 * 60 * 1000L) }
         job?.cancel()
         job = lifecycleScope.launch(kotlinx.coroutines.Dispatchers.Default) {
             BenchState.running.value = spec.id
@@ -58,6 +59,7 @@ class BenchService : LifecycleService() {
                 ResultLog.rec(RunCtx(run, spec.id.name.lowercase()), "error", "${t.javaClass.simpleName}: ${t.message}".take(300), "", dev.snapshot(false))
             } finally {
                 BenchState.running.value = null
+                BenchState.keepScreen.value = false
                 BenchState.progress.value = ""
                 stopAll(null)
             }
@@ -71,6 +73,8 @@ class BenchService : LifecycleService() {
         val first = s.llmModels.firstOrNull()
         fun needModel() = first ?: error("Kein LLM-Modell ausgewählt")
         when (s.id) {
+            TestId.DOWNLOAD -> downloadModels(run)
+            TestId.AUTO_ALL -> autoAll(s, run, llm, q)
             TestId.MODEL_INFO -> llm.modelInfo(s.llmModels + s.embedModels)
             TestId.LOAD_PREFILL_DECODE -> llm.loadPrefillDecode(needModel(), s.backend, s.mtp)
             TestId.BACKEND_MATRIX -> llm.backendMatrix(needModel(), s.mtp)
@@ -84,6 +88,71 @@ class BenchService : LifecycleService() {
             TestId.SCREEN_OFF -> llm.screenRun(needModel(), s.backend, s.minutes, "screen_off")
             TestId.FGS_LONG -> fgsLong(s, run, llm)
         }
+    }
+
+    private val modelDir get() = File(getExternalFilesDir(null), "models").apply { mkdirs() }
+
+    /** Lädt die Standard-Modelle (E2B, E4B, QAT falls vorhanden, EmbeddingGemma) von Hugging Face. */
+    private suspend fun downloadModels(run: String) {
+        BenchState.progress.value = "Suche Modelle auf Hugging Face …"
+        val all = ModelStore.discover()
+        ResultLog.info("Gefunden: " + all.joinToString { "${it.repo}/${it.file} (${it.sizeBytes / 1_048_576} MB)" })
+        val pick = ModelStore.defaults(all)
+        if (pick.isEmpty()) error("Keine passenden .litertlm-Dateien gefunden")
+        for (rf in pick) {
+            val c = RunCtx(run, "download", rf.localName, variant = rf.repo)
+            val t0 = SystemClock.elapsedRealtime()
+            try {
+                ModelStore.download(rf, modelDir) { done, total ->
+                    BenchState.progress.value = "Download ${rf.localName}: ${done / 1_048_576} / ${if (total > 0) total / 1_048_576 else "?"} MB"
+                }
+                ResultLog.rec(c, "download_s", (SystemClock.elapsedRealtime() - t0) / 1000, "s", dev.snapshot(false), "role=${rf.role}")
+            } catch (t: Throwable) {
+                if (t is CancellationException) throw t
+                ResultLog.rec(c, "download_error", (t.message ?: t.javaClass.simpleName).take(200), "", dev.snapshot(false))
+            }
+        }
+    }
+
+    private fun localModels(): List<File> =
+        modelDir.listFiles { f -> f.isFile && f.name.endsWith(".litertlm") }.orEmpty().sortedBy { it.length() }
+
+    /**
+     * Auto-Modus: alles nacheinander, ein Fehler stoppt die Kette nicht.
+     * Reihenfolge: Download → Info → 1 → 2 → 3 → 4 → 6 → 7 → 5 → 8a (Karte) → 8b (Bildschirm aus) → 3b (E4B, kann abstürzen) → 9.
+     */
+    private suspend fun autoAll(s: TestSpec, run: String, t: LlmTests, q: QualityTests) {
+        suspend fun step(id: TestId, block: suspend () -> Unit) {
+            BenchState.subTest.value = id
+            ResultLog.info("── Auto: ${id.label}")
+            try { block() } catch (e: Throwable) {
+                if (e is CancellationException) throw e
+                ResultLog.rec(RunCtx(run, "auto", variant = id.name), "step_error", "${e.javaClass.simpleName}: ${e.message}".take(300), "", dev.snapshot(false))
+            } finally { BenchState.subTest.value = null }
+        }
+        BenchState.keepScreen.value = true
+        step(TestId.DOWNLOAD) { downloadModels(run) }
+        val files = localModels()
+        val llms = files.filter { ModelStore.roleOf(it.name) in setOf(ModelStore.Role.E2B, ModelStore.Role.E4B, ModelStore.Role.QAT) }
+        val embs = files.filter { ModelStore.roleOf(it.name) == ModelStore.Role.EMBEDDING }
+        val e2b = llms.firstOrNull { ModelStore.roleOf(it.name) == ModelStore.Role.E2B } ?: llms.firstOrNull()
+            ?: error("Kein LLM-Modell vorhanden")
+        val e4b = llms.firstOrNull { ModelStore.roleOf(it.name) == ModelStore.Role.E4B }
+        val gpu = BackendChoice.GPU
+        step(TestId.MODEL_INFO) { t.modelInfo(files) }
+        step(TestId.LOAD_PREFILL_DECODE) { t.loadPrefillDecode(e2b, gpu, MtpChoice.DEFAULT) }
+        step(TestId.BACKEND_MATRIX) { t.backendMatrix(e2b, MtpChoice.DEFAULT) }
+        step(TestId.MODEL_MATRIX) { t.modelMatrix(llms.filter { it != e2b }, MtpChoice.DEFAULT) }
+        step(TestId.MTP_COMPARE) { (listOfNotNull(e2b, e4b)).forEach { t.mtpCompare(it, gpu) } }
+        step(TestId.EXTRACTION) { listOfNotNull(e2b, e4b).forEach { q.extraction(it, gpu) } }
+        step(TestId.EMBEDDING) { q.embedding(embs, listOf(BackendChoice.CPU, BackendChoice.GPU)) }
+        step(TestId.SUSTAINED_DUTY) { t.sustainedThenDuty(e2b, gpu, s.minutes) }
+        step(TestId.SCREEN_MAP) { t.cooldown("screen"); t.screenRun(e2b, gpu, s.minutes, "map") }
+        BenchState.keepScreen.value = false // ab hier geht der Bildschirm per System-Timeout aus
+        step(TestId.SCREEN_OFF) { t.cooldown("screen"); t.screenRun(e2b, gpu, s.minutes, "screen_off") }
+        if (e4b != null) step(TestId.RAM_SUSTAIN) { t.ramSustain(e4b, gpu, s.minutes) }
+        step(TestId.FGS_LONG) { fgsLong(s.copy(fgsHours = 6.5), run, t) }
+        ResultLog.info("AUTO FERTIG – bitte „CSV teilen“ drücken und an Claude schicken.")
     }
 
     /** Test 9: Herzschlag je Minute über viele Stunden; optional leichte LLM-Last alle 5 min. */
