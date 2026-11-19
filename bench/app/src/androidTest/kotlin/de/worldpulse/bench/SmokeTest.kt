@@ -27,7 +27,7 @@ class SmokeTest {
     private val ctx = InstrumentationRegistry.getInstrumentation().targetContext
     private fun log(m: String) { Log.i("SMOKE", m); println("SMOKE $m") }
 
-    @Test fun endToEnd() = runBlocking {
+    @Test fun endToEnd(): Unit = runBlocking {
         ResultLog.init(ctx)
         val dir = File(ctx.getExternalFilesDir(null), "models").apply { mkdirs() }
         val all = ModelStore.discover()
@@ -68,5 +68,6 @@ class SmokeTest {
                 }
             }.onFailure { log("embedding ERROR ${it.javaClass.simpleName}: ${it.message}") }
         } ?: log("embedding: kein Modell gefunden")
+        Unit
     }
 }
