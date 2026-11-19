@@ -14,11 +14,12 @@ android {
         targetSdk = 36       // >= 35 nötig, damit die Android-15-FGS-Zeitlimits greifen (Test 9)
         versionCode = 1
         versionName = "0.1.0"
-        ndk { abiFilters += "arm64-v8a" }
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
+            ndk { abiFilters += "arm64-v8a" } // S23; Debug enthält zusätzlich x86_64 für den Emulator-Smoke-Test
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("debug") // privat, nur Sideload
         }
@@ -53,4 +54,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.kotlinx.coroutines.android)
+
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.junit)
 }
