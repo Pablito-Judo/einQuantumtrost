@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "gold-0001",
+  "title": "Neckar-Hochwasser in Bad Wimpfen",
+  "category": "unwetter",
+  "event_time": "2026-11-14T06:00:00+01:00",
+  "location": {
+    "name": "Bad Wimpfen",
+    "lat": 49.2297,
+    "lon": 9.1584,
+    "precision": "STADT"
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "publisher": "Hochwasservorhersagezentrale BW (synthetisch)",
+      "tier": "A",
+      "url": "https://example.org/hvz/neckar",
+      "published_at": "2026-11-14T07:10:00+01:00",
+      "language": "de",
+      "text": "Am Pegel Bad Wimpfen wurde um 6 Uhr ein Wasserstand von 5,9 Metern gemessen. Bis Sonntag wird ein Anstieg auf bis zu 6,3 Meter erwartet. Die Meldestufe 2 ist überschritten."
+    },
+    {
+      "id": "s2",
+      "publisher": "Regionalzeitung (synthetisch)",
+      "tier": "B",
+      "url": "https://example.org/zeitung/hochwasser",
+      "published_at": "2026-11-14T09:30:00+01:00",
+      "language": "de",
+      "echo_group": "dpa-hw-1114",
+      "text": "Nach tagelangem Regen hat der Neckar in Bad Wimpfen einen Pegelstand von 5,9 Metern erreicht. Die Stadt hat die Uferstraße gesperrt und Sandsäcke ausgegeben. Bürgermeister Weber sagte, man sei \"gut vorbereitet\"."
+    },
+    {
+      "id": "s3",
+      "publisher": "Radiosender (synthetisch, Agenturkopie)",
+      "tier": "B",
+      "url": "https://example.org/radio/hochwasser",
+      "published_at": "2026-11-14T09:45:00+01:00",
+      "language": "de",
+      "echo_group": "dpa-hw-1114",
+      "text": "Der Neckar hat in Bad Wimpfen einen Pegelstand von 5,9 Metern erreicht. Die Stadt sperrte die Uferstraße."
+    }
+  ],
+  "claims": [
+    {
+      "id": "g1-c1",
+      "source_id": "s1",
+      "text": "Am Pegel Bad Wimpfen wurden um 6 Uhr 5,9 Meter gemessen",
+      "speaker": "Hochwasservorhersagezentrale",
+      "type": "FAKT",
+      "span": "Am Pegel Bad Wimpfen wurde um 6 Uhr ein Wasserstand von 5,9 Metern gemessen",
+      "entities": [
+        "e1",
+        "e2"
+      ],
+      "event_time": "2026-11-14T06:00:00+01:00"
+    },
+    {
+      "id": "g1-c2",
+      "source_id": "s1",
+      "text": "Bis Sonntag wird ein Anstieg auf bis zu 6,3 Meter erwartet",
+      "speaker": "Hochwasservorhersagezentrale",
+      "type": "BEHAUPTUNG",
+      "span": "Bis Sonntag wird ein Anstieg auf bis zu 6,3 Meter erwartet",
+      "entities": [
+        "e2"
+      ]
+    },
+    {
+      "id": "g1-c3",
+      "source_id": "s1",
+      "text": "Die Meldestufe 2 ist überschritten",
+      "speaker": "Hochwasservorhersagezentrale",
+      "type": "FAKT",
+      "span": "Die Meldestufe 2 ist überschritten",
+      "entities": []
+    },
+    {
+      "id": "g1-c4",
+      "source_id": "s2",
+      "text": "Der Neckar erreichte in Bad Wimpfen 5,9 Meter",
+      "speaker": "Regionalzeitung",
+      "type": "FAKT",
+      "span": "hat der Neckar in Bad Wimpfen einen Pegelstand von 5,9 Metern erreicht",
+      "entities": [
+        "e1",
+        "e2"
+      ]
+    },
+    {
+      "id": "g1-c5",
+      "source_id": "s2",
+      "text": "Die Stadt sperrte die Uferstraße und gab Sandsäcke aus",
+      "speaker": "Regionalzeitung",
+      "type": "FAKT",
+      "span": "Die Stadt hat die Uferstraße gesperrt und Sandsäcke ausgegeben",
+      "entities": [
+        "e1"
+      ]
+    },
+    {
+      "id": "g1-c6",
+      "source_id": "s2",
+      "text": "Bürgermeister Weber sagte, man sei gut vorbereitet",
+      "speaker": "Bürgermeister Weber",
+      "type": "ZITAT",
+      "span": "man sei \"gut vorbereitet\"",
+      "entities": [
+        "e3"
+      ]
+    },
+    {
+      "id": "g1-c7",
+      "source_id": "s3",
+      "text": "Der Neckar erreichte in Bad Wimpfen 5,9 Meter",
+      "speaker": "Radiosender",
+      "type": "FAKT",
+      "span": "Der Neckar hat in Bad Wimpfen einen Pegelstand von 5,9 Metern erreicht",
+      "entities": [
+        "e1",
+        "e2"
+      ]
+    },
+    {
+      "id": "g1-c8",
+      "source_id": "s3",
+      "text": "Die Stadt sperrte die Uferstraße",
+      "speaker": "Radiosender",
+      "type": "FAKT",
+      "span": "Die Stadt sperrte die Uferstraße",
+      "entities": [
+        "e1"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "e1",
+      "name": "Bad Wimpfen",
+      "type": "ORT",
+      "aliases": [],
+      "wikidata_id": "Q502611"
+    },
+    {
+      "id": "e2",
+      "name": "Neckar",
+      "type": "ORT",
+      "aliases": [
+        "Neckarfluss"
+      ],
+      "wikidata_id": "Q1673"
+    },
+    {
+      "id": "e3",
+      "name": "Bürgermeister Weber",
+      "type": "PERSON",
+      "aliases": [
+        "Weber"
+      ]
+    }
+  ],
+  "reference_dossier": [
+    {
+      "text": "Der Neckar hat in Bad Wimpfen am Morgen einen Pegelstand von 5,9 Metern erreicht.",
+      "claim_ids": [
+        "g1-c1",
+        "g1-c4",
+        "g1-c7"
+      ]
+    },
+    {
+      "text": "Die Hochwasservorhersagezentrale erwartet bis Sonntag einen Anstieg auf bis zu 6,3 Meter.",
+      "claim_ids": [
+        "g1-c2"
+      ]
+    },
+    {
+      "text": "Die Stadt hat die Uferstraße gesperrt und Sandsäcke ausgegeben.",
+      "claim_ids": [
+        "g1-c5",
+        "g1-c8"
+      ]
+    }
+  ],
+  "notes": "Synthetisch. s2 und s3 sind dieselbe Agenturmeldung (echo_group) und zählen als EINE Quelle; Wikidata-IDs ungeprüft.",
+  "checked_by": "nutzer",
+  "checked_at": "2026-11-19"
+}

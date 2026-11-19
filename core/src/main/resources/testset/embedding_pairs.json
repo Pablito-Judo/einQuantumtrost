@@ -1,0 +1,66 @@
+{
+ "version": 1,
+ "description": "10 Satzpaare gleiche/andere Meldung (inkl. sprachübergreifend und harte Negative).",
+ "pairs": [
+  {
+   "id": "p01",
+   "same": true,
+   "a": "Ein Erdbeben der Stärke 6,2 erschütterte am Samstag die Küste Nordchiles.",
+   "b": "A magnitude 6.2 earthquake struck off northern Chile on Saturday."
+  },
+  {
+   "id": "p02",
+   "same": true,
+   "a": "Verdi ruft für Montag zum Warnstreik im Stuttgarter Nahverkehr auf.",
+   "b": "Am Montag streiken Busse und Bahnen in Stuttgart, Verdi hat zum Ausstand aufgerufen."
+  },
+  {
+   "id": "p03",
+   "same": true,
+   "a": "Russland meldet den Abschuss von 41 Drohnen über Belgorod.",
+   "b": "Над Белгородской областью сбит 41 беспилотник, сообщает Минобороны России."
+  },
+  {
+   "id": "p04",
+   "same": true,
+   "a": "The central bank lifted rates to 4.5 percent, its third hike this year.",
+   "b": "Die Zentralbank erhöhte den Leitzins zum dritten Mal in diesem Jahr auf 4,5 Prozent."
+  },
+  {
+   "id": "p05",
+   "same": true,
+   "a": "Neckar-Hochwasser: Pegel in Bad Wimpfen bei 5,9 Metern, Uferstraße gesperrt.",
+   "b": "In Bad Wimpfen steigt der Neckar auf fast sechs Meter, die Stadt sperrt die Straße am Ufer."
+  },
+  {
+   "id": "p06",
+   "same": false,
+   "a": "Ein Erdbeben der Stärke 6,2 erschütterte am Samstag die Küste Nordchiles.",
+   "b": "Ein Erdbeben der Stärke 3,1 wurde nachts auf der Schwäbischen Alb registriert."
+  },
+  {
+   "id": "p07",
+   "same": false,
+   "a": "Verdi ruft für Montag zum Warnstreik im Stuttgarter Nahverkehr auf.",
+   "b": "Der Gemeinderat Neckarsulm beschließt den Bau einer neuen Grundschule."
+  },
+  {
+   "id": "p08",
+   "same": false,
+   "a": "Russland meldet den Abschuss von 41 Drohnen über Belgorod.",
+   "b": "A drone strike hit a fuel depot near the port city on Tuesday night."
+  },
+  {
+   "id": "p09",
+   "same": false,
+   "a": "The central bank lifted rates to 4.5 percent, its third hike this year.",
+   "b": "Inflation in Baden-Württemberg rose to 2.4 percent in October."
+  },
+  {
+   "id": "p10",
+   "same": false,
+   "a": "Wildfire in southern California burns more than 4,500 hectares.",
+   "b": "Ein Großbrand in einer Heilbronner Lagerhalle verursacht 1,5 Millionen Euro Schaden."
+  }
+ ]
+}

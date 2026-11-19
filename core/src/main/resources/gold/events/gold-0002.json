@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "gold-0002",
+  "title": "Drohnenangriff Region Belgorod – widersprüchliche Angaben",
+  "category": "konflikt",
+  "event_time": "2026-11-16T02:00:00+03:00",
+  "location": {
+    "name": "Oblast Belgorod",
+    "lat": 50.6,
+    "lon": 36.6,
+    "precision": "REGION"
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "publisher": "Russisches Verteidigungsministerium (Telegram, synthetisch)",
+      "tier": "C",
+      "published_at": "2026-11-16T07:00:00+03:00",
+      "language": "de",
+      "translated_from": "ru",
+      "text": "Die Luftabwehr hat in der Nacht 41 ukrainische Drohnen über der Region Belgorod abgeschossen. In einem Dorf wurde ein Wohnhaus beschädigt."
+    },
+    {
+      "id": "s2",
+      "publisher": "Ukrainischer Generalstab (synthetisch)",
+      "tier": "C",
+      "published_at": "2026-11-16T10:00:00+02:00",
+      "language": "de",
+      "translated_from": "uk",
+      "text": "In der Nacht wurde ein Munitionslager in der Region Belgorod getroffen. Es kam zu sekundären Explosionen."
+    },
+    {
+      "id": "s3",
+      "publisher": "Internationale Nachrichtenagentur (synthetisch)",
+      "tier": "A",
+      "published_at": "2026-11-16T12:00:00+00:00",
+      "language": "en",
+      "text": "Russia said it downed 41 drones over the Belgorod region overnight, while Ukraine's General Staff said it struck an ammunition depot there. Neither claim could be independently verified."
+    }
+  ],
+  "claims": [
+    {
+      "id": "g2-c1",
+      "source_id": "s1",
+      "text": "Die Luftabwehr schoss 41 ukrainische Drohnen über der Region Belgorod ab",
+      "speaker": "Russisches Verteidigungsministerium",
+      "type": "BEHAUPTUNG",
+      "span": "41 ukrainische Drohnen über der Region Belgorod abgeschossen",
+      "entities": [
+        "e1",
+        "e2"
+      ]
+    },
+    {
+      "id": "g2-c2",
+      "source_id": "s1",
+      "text": "In einem Dorf wurde ein Wohnhaus beschädigt",
+      "speaker": "Russisches Verteidigungsministerium",
+      "type": "BEHAUPTUNG",
+      "span": "In einem Dorf wurde ein Wohnhaus beschädigt",
+      "entities": []
+    },
+    {
+      "id": "g2-c3",
+      "source_id": "s2",
+      "text": "Ein Munitionslager in der Region Belgorod wurde getroffen",
+      "speaker": "Ukrainischer Generalstab",
+      "type": "BEHAUPTUNG",
+      "span": "In der Nacht wurde ein Munitionslager in der Region Belgorod getroffen",
+      "entities": [
+        "e1",
+        "e3"
+      ]
+    },
+    {
+      "id": "g2-c4",
+      "source_id": "s2",
+      "text": "Es kam zu sekundären Explosionen",
+      "speaker": "Ukrainischer Generalstab",
+      "type": "BEHAUPTUNG",
+      "span": "Es kam zu sekundären Explosionen",
+      "entities": []
+    },
+    {
+      "id": "g2-c5",
+      "source_id": "s3",
+      "text": "Russia said it downed 41 drones over the Belgorod region",
+      "speaker": "Nachrichtenagentur",
+      "type": "FAKT",
+      "span": "Russia said it downed 41 drones over the Belgorod region overnight",
+      "entities": [
+        "e1",
+        "e2"
+      ]
+    },
+    {
+      "id": "g2-c6",
+      "source_id": "s3",
+      "text": "Ukraine's General Staff said it struck an ammunition depot",
+      "speaker": "Nachrichtenagentur",
+      "type": "FAKT",
+      "span": "Ukraine's General Staff said it struck an ammunition depot there",
+      "entities": [
+        "e3"
+      ]
+    },
+    {
+      "id": "g2-c7",
+      "source_id": "s3",
+      "text": "Neither claim could be independently verified",
+      "speaker": "Nachrichtenagentur",
+      "type": "FAKT",
+      "span": "Neither claim could be independently verified",
+      "entities": []
+    }
+  ],
+  "entities": [
+    {
+      "id": "e1",
+      "name": "Belgorod",
+      "type": "ORT",
+      "aliases": [
+        "Белгород",
+        "Bilhorod",
+        "Белгородская область"
+      ],
+      "wikidata_id": "Q17761"
+    },
+    {
+      "id": "e2",
+      "name": "Russisches Verteidigungsministerium",
+      "type": "ORGANISATION",
+      "aliases": [
+        "Минобороны России",
+        "Russian Defense Ministry",
+        "Russland"
+      ]
+    },
+    {
+      "id": "e3",
+      "name": "Ukrainischer Generalstab",
+      "type": "ORGANISATION",
+      "aliases": [
+        "General Staff of Ukraine",
+        "Генштаб ВСУ",
+        "ukrainische Generalstab"
+      ]
+    }
+  ],
+  "reference_dossier": [
+    {
+      "text": "Russland gibt an, in der Nacht 41 ukrainische Drohnen über der Region Belgorod abgeschossen zu haben.",
+      "claim_ids": [
+        "g2-c1",
+        "g2-c5"
+      ]
+    },
+    {
+      "text": "Der ukrainische Generalstab meldet dagegen einen Treffer auf ein Munitionslager in der Region.",
+      "claim_ids": [
+        "g2-c3",
+        "g2-c6"
+      ]
+    },
+    {
+      "text": "Keine der beiden Angaben ließ sich unabhängig überprüfen.",
+      "claim_ids": [
+        "g2-c7"
+      ]
+    }
+  ],
+  "notes": "Synthetisch. Konfliktfall: Parteiangaben = Stufe C; Status-Ring 'umstritten'. Wikidata-IDs ungeprüft.",
+  "checked_by": "nutzer",
+  "checked_at": "2026-11-19"
+}

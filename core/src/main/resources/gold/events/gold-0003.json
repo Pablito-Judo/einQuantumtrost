@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "id": "gold-0003",
+  "title": "Erdbeben M6.2 vor Nordchile",
+  "category": "erdbeben",
+  "event_time": "2026-11-15T14:22:00Z",
+  "location": {
+    "name": "Küste Nordchile (Region Antofagasta)",
+    "lat": -23.1,
+    "lon": -70.9,
+    "precision": "REGION"
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "publisher": "USGS (synthetisch)",
+      "tier": "A",
+      "url": "https://example.org/usgs/event",
+      "published_at": "2026-11-15T14:40:00Z",
+      "language": "en",
+      "text": "M 6.2 - 48 km W of Antofagasta, Chile. Origin time 2026-11-15 14:22 UTC. Depth 35.0 km."
+    },
+    {
+      "id": "s2",
+      "publisher": "Chilenische Marine SHOA (synthetisch)",
+      "tier": "A",
+      "published_at": "2026-11-15T14:50:00Z",
+      "language": "en",
+      "translated_from": "es",
+      "text": "The characteristics of the earthquake do not meet the conditions to generate a tsunami on the coast of Chile."
+    },
+    {
+      "id": "s3",
+      "publisher": "Lokalmedium (synthetisch)",
+      "tier": "B",
+      "published_at": "2026-11-15T16:00:00Z",
+      "language": "de",
+      "translated_from": "es",
+      "text": "In Antofagasta fiel nach dem Beben in mehreren Stadtteilen für etwa zwei Stunden der Strom aus. Verletzte wurden nicht gemeldet."
+    }
+  ],
+  "claims": [
+    {
+      "id": "g3-c1",
+      "source_id": "s1",
+      "text": "Ein Erdbeben der Magnitude 6.2 ereignete sich 48 km westlich von Antofagasta",
+      "speaker": "USGS",
+      "type": "FAKT",
+      "span": "M 6.2 - 48 km W of Antofagasta, Chile",
+      "entities": [
+        "e1",
+        "e2"
+      ]
+    },
+    {
+      "id": "g3-c2",
+      "source_id": "s1",
+      "text": "Das Beben ereignete sich um 14:22 UTC in 35 km Tiefe",
+      "speaker": "USGS",
+      "type": "FAKT",
+      "span": "Origin time 2026-11-15 14:22 UTC. Depth 35.0 km",
+      "entities": []
+    },
+    {
+      "id": "g3-c3",
+      "source_id": "s2",
+      "text": "Es besteht keine Tsunami-Gefahr für die Küste Chiles",
+      "speaker": "SHOA",
+      "type": "FAKT",
+      "span": "do not meet the conditions to generate a tsunami on the coast of Chile",
+      "entities": [
+        "e3"
+      ]
+    },
+    {
+      "id": "g3-c4",
+      "source_id": "s3",
+      "text": "In Antofagasta fiel in mehreren Stadtteilen etwa zwei Stunden der Strom aus",
+      "speaker": "Lokalmedium",
+      "type": "FAKT",
+      "span": "In Antofagasta fiel nach dem Beben in mehreren Stadtteilen für etwa zwei Stunden der Strom aus",
+      "entities": [
+        "e2"
+      ]
+    },
+    {
+      "id": "g3-c5",
+      "source_id": "s3",
+      "text": "Verletzte wurden nicht gemeldet",
+      "speaker": "Lokalmedium",
+      "type": "FAKT",
+      "span": "Verletzte wurden nicht gemeldet",
+      "entities": []
+    }
+  ],
+  "entities": [
+    {
+      "id": "e1",
+      "name": "USGS",
+      "type": "ORGANISATION",
+      "aliases": [
+        "U.S. Geological Survey"
+      ],
+      "wikidata_id": "Q193755"
+    },
+    {
+      "id": "e2",
+      "name": "Antofagasta",
+      "type": "ORT",
+      "aliases": [],
+      "wikidata_id": "Q2903"
+    },
+    {
+      "id": "e3",
+      "name": "Chile",
+      "type": "ORT",
+      "aliases": [],
+      "wikidata_id": "Q298"
+    }
+  ],
+  "reference_dossier": [
+    {
+      "text": "Ein Erdbeben der Magnitude 6.2 hat sich am 15. November 48 km westlich von Antofagasta in 35 km Tiefe ereignet.",
+      "claim_ids": [
+        "g3-c1",
+        "g3-c2"
+      ]
+    },
+    {
+      "text": "Die chilenische Marine sieht keine Tsunami-Gefahr.",
+      "claim_ids": [
+        "g3-c3"
+      ]
+    },
+    {
+      "text": "In Antofagasta fiel in mehreren Stadtteilen etwa zwei Stunden der Strom aus; Verletzte wurden nicht gemeldet.",
+      "claim_ids": [
+        "g3-c4",
+        "g3-c5"
+      ]
+    }
+  ],
+  "notes": "Synthetisch. Primärquelle (USGS) -> Status 'bestätigt'. Wikidata-IDs ungeprüft.",
+  "checked_by": "nutzer",
+  "checked_at": "2026-11-19"
+}

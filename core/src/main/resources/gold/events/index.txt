@@ -1,0 +1,4 @@
+# Liste der Goldstandard-Ereignisse (eine Datei pro Zeile)
+gold-0001.json
+gold-0002.json
+gold-0003.json
