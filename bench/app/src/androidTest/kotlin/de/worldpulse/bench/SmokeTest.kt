@@ -34,7 +34,8 @@ class SmokeTest {
         all.forEach { log("found ${it.role} ${it.repo}/${it.file} ${it.sizeBytes / 1_048_576} MB generic=${ModelStore.isGeneric(it.file)}") }
         val defaults = ModelStore.defaults(all)
         defaults.forEach { log("default ${it.role} ${it.repo}/${it.file}") }
-        val e2b = defaults.first { it.role == ModelStore.Role.E2B }
+        val e2b = defaults.filter { it.role == ModelStore.Role.E2B && ModelStore.isGeneric(it.file) }
+            .minBy { if ("-gpu" in it.file) 1 else 0 }
         val f = ModelStore.download(e2b, dir) { d, t -> if (d == t) log("downloaded $d/$t") }
         log("model ${f.name} ${f.length()} bytes; info=${Llm.describe(f)}")
 
@@ -58,7 +59,7 @@ class SmokeTest {
             }
         }
 
-        defaults.firstOrNull { it.role == ModelStore.Role.EMBEDDING }?.let { ef ->
+        defaults.filter { it.role == ModelStore.Role.EMBEDDING && ModelStore.isGeneric(it.file) }.minByOrNull { it.sizeBytes }?.let { ef ->
             runCatching {
                 val m = ModelStore.download(ef, dir) { _, _ -> }
                 EmbeddingEngine(EmbeddingEngineConfig(modelPath = m.absolutePath, cacheDir = ctx.cacheDir.path)).use { e ->

@@ -90,6 +90,10 @@ class LlmTests(private val ctx: Context, private val dev: Device, private val ru
         }
     }
 
+    /** SoC-spezifische Dateien (z. B. _Qualcomm_SM8550) nur auf NPU, sonst GPU + CPU. */
+    fun backendsFor(f: File): List<BackendChoice> =
+        if (de.worldpulse.bench.ModelStore.isNpuBuild(f.name)) listOf(BackendChoice.NPU) else listOf(BackendChoice.GPU, BackendChoice.CPU)
+
     /** Test 2: CPU / GPU / NPU nacheinander (NPU: Fehler wird protokolliert, falls nicht unterstützt). */
     suspend fun backendMatrix(model: File, mtp: MtpChoice) {
         for (b in BackendChoice.entries) {
@@ -100,7 +104,7 @@ class LlmTests(private val ctx: Context, private val dev: Device, private val ru
 
     /** Test 3: alle LLM-Dateien (E2B, E4B, QAT …) mit GPU und CPU. */
     suspend fun modelMatrix(models: List<File>, mtp: MtpChoice) {
-        for (m in models) for (b in listOf(BackendChoice.GPU, BackendChoice.CPU)) {
+        for (m in models) for (b in backendsFor(m)) {
             loadPrefillDecode(m, b, mtp, test = "model_matrix")
             cooldown("model_matrix")
         }

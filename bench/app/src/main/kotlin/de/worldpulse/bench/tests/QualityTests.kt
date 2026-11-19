@@ -111,7 +111,7 @@ class QualityTests(private val ctx: Context, private val dev: Device, private va
     fun embedding(models: List<File>, backends: List<BackendChoice>) {
         val pairs = TestSet.embeddingPairs()
         val prefixes = listOf("none" to "", "task_sim" to "task: sentence similarity | query: ")
-        for (m in models) for (b in backends) {
+        for (m in models) for (b in (if (de.worldpulse.bench.ModelStore.isNpuBuild(m.name)) listOf(BackendChoice.NPU) else backends)) {
             val base = RunCtx(run, "embedding", m.name, b.name)
             val rssBefore = dev.rssMb().first
             val engine = EmbeddingEngine(EmbeddingEngineConfig(modelPath = m.absolutePath, backend = b.toBackend(ctx), cacheDir = ctx.cacheDir.path))

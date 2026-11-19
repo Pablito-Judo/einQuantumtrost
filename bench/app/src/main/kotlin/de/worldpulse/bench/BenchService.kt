@@ -135,9 +135,9 @@ class BenchService : LifecycleService() {
         val files = localModels()
         val llms = files.filter { ModelStore.roleOf(it.name) in setOf(ModelStore.Role.E2B, ModelStore.Role.E4B, ModelStore.Role.QAT) }
         val embs = files.filter { ModelStore.roleOf(it.name) == ModelStore.Role.EMBEDDING }
-        val e2b = llms.firstOrNull { ModelStore.roleOf(it.name) == ModelStore.Role.E2B } ?: llms.firstOrNull()
-            ?: error("Kein LLM-Modell vorhanden")
-        val e4b = llms.firstOrNull { ModelStore.roleOf(it.name) == ModelStore.Role.E4B }
+        val e2b = ModelStore.mainFile(files, ModelStore.Role.E2B) ?: llms.firstOrNull() ?: error("Kein LLM-Modell vorhanden")
+        val e4b = ModelStore.mainFile(files, ModelStore.Role.E4B)
+        ResultLog.info("Auto: SoC=${ModelStore.deviceSoc()} E2B=${e2b.name} E4B=${e4b?.name} LLMs=${llms.map { it.name }} Embedding=${embs.map { it.name }}")
         val gpu = BackendChoice.GPU
         step(TestId.MODEL_INFO) { t.modelInfo(files) }
         step(TestId.LOAD_PREFILL_DECODE) { t.loadPrefillDecode(e2b, gpu, MtpChoice.DEFAULT) }

@@ -48,8 +48,23 @@ object ModelStore {
     /** Generische Datei (nicht für eine bestimmte NPU/SoC gebaut)? */
     fun isGeneric(name: String): Boolean {
         val l = name.lowercase()
-        return listOf("sm8", "sm7", "mt6", "tensor", "qualcomm", "mediatek", "_npu", "-npu", "exynos").none { it in l }
+        return listOf("qualcomm", "tensor", "mediatek", "intel", "_npu", "-npu", "exynos", "sm8", "mt69").none { it in l }
     }
+
+    /** Für eine SoC kompilierte Datei (z. B. "_Qualcomm_SM8550") -> nur NPU-Backend sinnvoll. */
+    fun isNpuBuild(name: String) = "qualcomm_" in name.lowercase() || "tensor_" in name.lowercase() || "mediatek_" in name.lowercase()
+
+    /** Nicht fürs Handy gedacht: Web-Builds (WebGPU), Intel-PC, Demo-/LoRA-Repos, unkompilierte NPU-Dateien. */
+    private val excluded = listOf("-web", "intel", "lora", "medical", "nepali", "demo", "uncompiled")
+    fun usable(f: RemoteFile) = excluded.none { it in f.file.lowercase() || it in f.repo.lowercase() }
+
+    /** S23 = "SM8550" (Build.SOC_MODEL). */
+    fun deviceSoc(): String? = runCatching { android.os.Build.SOC_MODEL }.getOrNull()?.takeIf { it.isNotBlank() && it != "unknown" }
+
+    /** Haupt-Datei je Rolle: generisch, nicht "-gpu" (läuft auf CPU und GPU). */
+    fun mainFile(files: List<File>, role: Role): File? =
+        files.filter { roleOf(it.name) == role && isGeneric(it.name) }
+            .sortedBy { if ("-gpu" in it.name.lowercase()) 1 else 0 }.firstOrNull()
 
     /** Sucht passende Repos bei litert-community und listet deren .litertlm-Dateien mit Größe. */
     suspend fun discover(): List<RemoteFile> = withContext(Dispatchers.IO) {
@@ -68,11 +83,17 @@ object ModelStore {
         }.filter { it.role != Role.OTHER }
     }
 
-    /** Standardauswahl für den Auto-Modus: je Rolle die kleinste generische Datei. */
-    fun defaults(all: List<RemoteFile>): List<RemoteFile> =
-        all.filter { isGeneric(it.file) }.groupBy { it.role }.mapNotNull { (_, fs) ->
-            fs.minByOrNull { if (it.sizeBytes > 0) it.sizeBytes else Long.MAX_VALUE }
-        }
+    /**
+     * Auswahl für den Auto-Modus: alle generischen Handy-Dateien (E2B, E2B-gpu, E4B, E4B-gpu, EmbeddingGemma 2
+     * 270M/440M/740M) + Dateien, die genau für den SoC dieses Geräts kompiliert sind (S23: *_Qualcomm_SM8550 -> NPU-Test).
+     */
+    fun defaults(all: List<RemoteFile>, soc: String? = deviceSoc()): List<RemoteFile> {
+        val u = all.filter(::usable)
+        val generic = u.filter { isGeneric(it.file) }
+        val forSoc = if (soc == null) emptyList() else u.filter { it.file.contains("_Qualcomm_$soc", ignoreCase = true) }
+        return (generic + forSoc).distinctBy { it.repo + "/" + it.file }
+            .sortedWith(compareBy({ it.role.ordinal }, { it.sizeBytes }))
+    }
 
     /** Lädt [rf] nach [dir]; überspringt, wenn schon vollständig vorhanden. */
     suspend fun download(rf: RemoteFile, dir: File, onProgress: (Long, Long) -> Unit): File = withContext(Dispatchers.IO) {
