@@ -41,15 +41,22 @@ class LocalLlm private constructor(private val engine: Engine, val backendName: 
 
     data class Out(val text: String, val prefillTokens: Int, val decodeTokens: Int)
 
-    /** Ein Aufruf in frischer Conversation (kein KV-Übertrag zwischen Artikeln). */
-    fun generate(system: String, user: String, maxTokens: Int): Out {
+    /**
+     * Ein Aufruf in frischer Conversation (kein KV-Übertrag zwischen Artikeln).
+     * Wächter: nach [timeoutMs] wird der Aufruf per cancelProcess() abgebrochen (Schutz gegen Hänger, z. B. GPU-Treiber).
+     */
+    fun generate(system: String, user: String, maxTokens: Int, timeoutMs: Long = 180_000): Out {
         val cc = ConversationConfig(
             systemInstruction = Contents.of(system),
             samplerConfig = SamplerConfig(topK = 1, topP = 1.0, temperature = 0.0),
             maxOutputToken = maxTokens,
         )
         engine.createConversation(cc).use { conv ->
-            val msg = conv.sendMessage(user)
+            val watchdog = java.util.Timer("llm-watchdog", true)
+            watchdog.schedule(object : java.util.TimerTask() {
+                override fun run() { runCatching { conv.cancelProcess() } }
+            }, timeoutMs)
+            val msg = try { conv.sendMessage(user) } finally { watchdog.cancel() }
             val b = runCatching { conv.getBenchmarkInfo() }.getOrNull()
             return Out(msg.toString(), b?.lastPrefillTokenCount ?: -1, b?.lastDecodeTokenCount ?: -1)
         }
