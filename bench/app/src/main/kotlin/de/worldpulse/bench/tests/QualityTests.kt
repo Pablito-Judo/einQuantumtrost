@@ -114,7 +114,7 @@ class QualityTests(private val ctx: Context, private val dev: Device, private va
         for (m in models) for (b in (if (de.worldpulse.bench.ModelStore.isNpuBuild(m.name)) listOf(BackendChoice.NPU) else backends)) {
             val base = RunCtx(run, "embedding", m.name, b.name)
             val rssBefore = dev.rssMb().first
-            val engine = EmbeddingEngine(EmbeddingEngineConfig(modelPath = m.absolutePath, backend = b.toBackend(ctx), cacheDir = ctx.cacheDir.path))
+            val engine = EmbeddingEngine(EmbeddingEngineConfig(modelPath = m.absolutePath, backend = b.toBackend(ctx), cacheDir = de.worldpulse.bench.cacheDirFor(ctx, m, b.name)))
             val t0 = SystemClock.elapsedRealtime()
             try { engine.initialize() } catch (t: Throwable) {
                 ResultLog.rec(base, "load_error", (t.message ?: t.javaClass.simpleName).take(200), "", dev.snapshot())
@@ -138,6 +138,8 @@ class QualityTests(private val ctx: Context, private val dev: Device, private va
                     val d = dev.snapshot()
                     val dim = vecs.values.first().size
                     ResultLog.rec(c, "dim", dim, "", d)
+                    val fp = vecs.getValue(sentences.first()).take(4).joinToString("/") { "%.4f".format(java.util.Locale.ROOT, it) }
+                    ResultLog.rec(c, "fingerprint", fp, "", d, "erste 4 Werte Satz 1 – muss sich zwischen Modellen unterscheiden")
                     ResultLog.rec(c, "ms_per_sentence_mean", times.drop(1).average(), "ms", d, "erster Satz (Warmup) ${times.first()} ms")
                     ResultLog.rec(c, "rss_mb", dev.rssMb().first, "MB", d)
                     for (k in listOf(dim, 256, 128).filter { it <= dim }.distinct()) {

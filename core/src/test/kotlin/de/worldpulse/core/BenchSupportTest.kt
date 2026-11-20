@@ -29,6 +29,14 @@ class BenchSupportTest {
         assertEquals(DutyAction.WORK, d.decide(210_000, Thermal.LIGHT))
     }
 
+    @Test fun measured_policy_works_through_moderate_pauses_at_severe() {
+        val d = DutyCycler(DutyPolicy.MEASURED, 0)
+        assertEquals(DutyAction.WORK, d.decide(3_600_000, Thermal.MODERATE))
+        assertEquals(DutyAction.PAUSE_THERMAL, d.decide(3_700_000, Thermal.SEVERE))
+        assertEquals(DutyAction.PAUSE_THERMAL, d.decide(3_800_000, Thermal.MODERATE))
+        assertEquals(DutyAction.WORK, d.decide(3_900_000, Thermal.LIGHT))
+    }
+
     @Test fun disabled_policy_always_works() {
         val d = DutyCycler(DutyPolicy(enabled = false), 0)
         assertEquals(DutyAction.WORK, d.decide(10_000_000, Thermal.SEVERE))

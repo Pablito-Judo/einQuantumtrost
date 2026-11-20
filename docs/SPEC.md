@@ -69,13 +69,47 @@ Private News-Intelligence-App für Android (Samsung Galaxy S23, 128 GB, Snapdrag
 **Priorität:** *Muss*: Datenmodell, Dedupe, Claim-Extraktion, Clustering, Prüfer, Schreiber, Wiedervorlage, Goldstandard, Wärme-/Akku-Wächter, UI-Events. *Soll*: Zeit/Entitäten/Geo, Widerspruch, Quellen-Profiler, Fragesteller, Zeitlinie, Konfliktsymbole. *Später*: Framing-Encoder, Feedback-Lerner, ModernBERT-Detektor (LettuceDetect-Art), Globus, Heimserver.
 
 ## 6. Lokale KI, Messwerte, Machbarkeit (S23)
-**Modelle:** Gemma 4 E2B (2,58 GB Datei, < 1,5 GB aktiv), E4B (3,65 GB; Community: braucht 8 GB RAM, 8–15 Token/s → Absturzrisiko, nur nach RAM-Test). Gemma-4-QAT-Mobilformat (Juni 2026): E2B < 1 GB, ca. 2× schneller auf Handy-NPUs – ob das S23 es nutzt, UNGEKLÄRT. LiteRT-LM Kotlin-API stabil (GPU/CPU, NPU je nach Gerät), Funktionsaufrufe/eingeschränkte Ausgabe, Gemma-4-MTP (spekulatives Dekodieren, ab 0.11, GPU) zu testen. Denkmodus bei Extraktion AUS (sonst E2B bis ~20× langsamer). Praktische Kontextlänge kürzer als Datenblatt → ≤ 4k Token pro Aufruf planen.
-**S23-Messwerte (Community, Loci, 47 Geräte):** E2B ca. 14 Token/s Decode (9,6–15), erstes Wort 13,2 s (enthält evtl. Ladezeit). Einzelbericht: 5,5 Token/s auf LiteRT-Prozessorpfad (Gerät unbekannt). Benchmark trennt Laden/Prefill/Decode, GPU vs. CPU.
-**Embedding/Übersetzung:** EmbeddingGemma (308 Mio., < 200 MB RAM, 100+ Sprachen, 768/512/256/128 Dim.) + SQLite-Kosinus; EmbeddingGemma 2 laut LiteRT-LM-Übersicht Text 270 Mio./Text+Bild 440 Mio. (im Benchmark gegen Version 1 messen). ML Kit Übersetzung ca. 30 MB je Sprache.
-**Stand 19.11.2026: Benchmark-App bereit, Messung auf dem S23 ausstehend – alle Zahlen unten sind weiter Schätzungen.**
-**Urteil (Schätzung bis Schritt 0):** GRÜN als Nachtbetrieb, GELB für Live-Chat (13 s bis zum ersten Wort), ROT für Dauerlast ohne Pausen (Wärme). Rechnung: Decode 14 Token/s → 250 Token ≈ 18 s; Prefill 1000 Token unbekannt (Annahme 10–20 s) → ca. 30–40 s je Artikel; mit 50 % Duty-Cycling 40–60 Artikel/Stunde → 8-h-Nacht ≈ 300–450 Artikel; Dossier-Abschnitt ≈ 1–2 min.
-**Speicher (Schätzung):** Modelle E2B 2,6 + E4B 3,7 GB, Embedding < 0,5 GB, Übersetzung ~0,5 GB, Karten/Gazetteer 1–3 GB ≈ 9–11 GB; Datenbank 1–3 GB/Jahr → auf 128 GB unkritisch.
-**Größte Risiken:** Prefill/Zeit bis erstes Wort; E4B-RAM; Wärme (wenige aufeinanderfolgende Läufe drosseln die CPU); Android-15-Dienstlimit; GPU-Konkurrenz Karte↔LLM.
+**Gemessen auf dem S23 am 20.11.2026** (WP Bench, Auto-Lauf 01:23–10:50, Ladekabel, LiteRT-LM 0.19.0, Modelle `litert-community`). Ersetzt die früheren Schätzungen.
+
+**Modelle/Dateien:** E2B `gemma-4-E2B-it.litertlm` (2,47 GB, CPU+GPU, MTP-fähig, Kontext 4096) und `…-gpu.litertlm` (2,2 GB, nur GPU, Kontext 8192, kein MTP); E4B analog (3,49 / 3,16 GB). Kein Gemma-4-QAT als .litertlm verfügbar. Kein Gemma-4-Build für SM8550 (S23-NPU).
+
+| Modell (Datei) | Backend | Laden | TTFT kalt | Prefill tok/s (500 / 1000 / 2000) | TTFT bei 1000 Token | Decode tok/s |
+|---|---|---|---|---|---|---|
+| E2B -gpu | GPU | 9,2 s | 0,18 s | 148 / 1093 / 1301 | 0,9 s | **27,5** |
+| E2B | GPU | 10,6 s | 0,38 s | 156 / 795 / 1032 | 1,2 s | 20,5 |
+| E2B | CPU | 4,1 s | 0,56 s | 287 / 234 / 210 | 4,0 s | 17,9 |
+| E2B | „NPU“ | 8,9 s | 1,9 s | 68 / 68 / 83 | 13,8 s | 11,8 (vermutlich stiller Rückfall, nicht nutzen) |
+| E4B -gpu | GPU | 14,9 s | 0,36 s | 159 / 380 / 376 | 2,5 s | 14,4 |
+| E4B | GPU | 23,1 s | 0,63 s | 108 / 462 / 490 | 2,1 s | 14,8 |
+| E4B | CPU | 70,7 s | 2,5 s | 65 / 79 / 67 | 11,9 s | 9,0 |
+(-gpu-Dateien laufen nicht auf CPU. Prefill bei 500 Token enthält Anlauf; RSS-Spitzen nicht verwertbar, da prozessweit kumuliert.)
+
+**MTP (spekulatives Dekodieren):** kein Gewinn (E2B GPU 21,7 → 19,9 tok/s, E4B 12,7 → 12,9) → **aus**. Später ADAPTIVE/lenience testen.
+**Extraktion (20 Artikel, 70 Soll-Claims, Temperatur 0, Denkmodus aus):**
+| Modell | Format | Parse | Recall | Präzision | F1 | s/Artikel |
+|---|---|---|---|---|---|---|
+| E2B GPU | **kurz nachdenken → Zeilen** | 1,00 | **0,87** | **0,94** | **0,90** | 9,9 |
+| E2B GPU | Zeilen | 1,00 | 0,66 | 0,94 | 0,77 | 4,4 |
+| E2B GPU | erzwungenes JSON | 0,95 | 0,29 | 0,36 | 0,32 | 7,2 |
+| E4B GPU | kurz nachdenken → Zeilen | 1,00 | 0,71 | 0,73 | 0,72 | 19,2 |
+| E4B GPU | Zeilen | 1,00 | 0,50 | 0,53 | 0,52 | 14,3 |
+| E4B GPU | erzwungenes JSON | 0,80 | 0,54 | 0,78 | 0,64 | 27,7 |
+→ **Constraint Tax bestätigt** (JSON klar am schlechtesten bei E2B). Belegspannen in allen Formaten zu 94–100 % wörtlich. E4B ist bei Extraktion schlechter UND 2–3× langsamer (kleines, synthetisches Test-Set – am Goldstandard bestätigen).
+**Wärme:** 10 min Dauerlast E2B GPU: Akku 42,6 °C, Thermal MODERATE, Headroom 0,93 – **Durchsatz konstant 25–26 tok/s, keine Drosselung**. Duty-Cycling 60/30 mit Pause ab MODERATE: 38 °C, aber nur 55 % des Durchsatzes → Regel geändert (Pause erst ab SEVERE / Akku ≥ 44 °C; `DutyPolicy.MEASURED`). Langzeit > 10 min: Nachtest 60 min.
+**Bildschirm:** Karten-Ansicht vs. Bildschirm aus: gleicher Durchsatz (26 tok/s), Temperatur 42,7 vs. 42,2 °C → Karte kostet praktisch nichts (Bildschirm ging erst nach 8 min aus; Vergleich schwach).
+**E4B-RAM-Test (10 min GPU):** **nicht beendet**, kein lowMemory, min. 770 MB frei, 11–12 tok/s, 43,4 °C → E4B auf dem S23 lauffähig.
+**Android-15-Dienst:** `onTimeout` (dataSync) kam um 09:31 nach ~8 h Gesamtlaufzeit des Dienstes (Android zählt nur Hintergrundzeit; Limit 6 h/24 h), sauber gestoppt → Analyse-Sitzungen ≤ 6 h Hintergrund bzw. Neustart bei sichtbarer App (wie geplant).
+**Embedding:** 1. Messung ungültig (alle drei EmbeddingGemma-2-Modelle lieferten identische Vektoren → Cache-Verwechslung, behoben, Nachtest). Gemessen gültig: Satzzeit GPU ~61 ms, CPU ~110–150 ms; Präfix „task: sentence similarity | query:“ vergrößert den Abstand gleich/anders (0,072 vs. 0,039 bei 768 Dim.). SM8550-NPU-Dateien starten nicht (Qualcomm-Laufzeitbibliotheken fehlen in der App).
+
+**Entscheidungen (aus Messung):**
+- **Extraktion: E2B, GPU, Format „kurz nachdenken → Zeilen“** (F1 0,90, ~10 s/Artikel). Datei: Standard-E2B (gemessen); `-gpu`-Datei ist 34 % schneller im Decode → im Nachtest mit Extraktion prüfen und bei gleicher Qualität übernehmen.
+- **Schreiben (Dossier):** E2B GPU als Standard (Abschnitt ~13–18 s); **E4B: ja als Option** (RAM ok, ~26–29 s/Abschnitt), aber erst nach Qualitätsvergleich am Goldstandard in S6 einsetzen.
+- **Embedding:** EmbeddingGemma 2 auf GPU, mit Aufgaben-Präfix; Modellgröße nach Nachtest.
+- **NPU:** nicht nutzen. **MTP:** aus. **Kein erzwungenes JSON** für Extraktion.
+- **Durchsatz (gemessen, ohne Duty-Pausen):** Extraktion ~360 Artikel/h → **8-h-Nacht ≈ 2.900 Artikel** (frühere Schätzung 300–450); Dossier-Abschnitt ≈ 13–18 s → ~200–270/h. Mit Sicherheitsabschlag (Wärme-Langzeit unbekannt, Scout/Embedding parallel) planerisch **~1.500–2.000 Artikel pro Nacht**.
+- **Live-Chat:** TTFT ~1 s bei 1000 Token Kontext (E2B GPU, Modell geladen) → GRÜN (statt GELB). Laden kostet 9–11 s einmalig.
+**Speicher:** Modelle E2B 2,5 (+2,2 -gpu), E4B 3,5 (+3,2), Embedding 0,2–0,5 GB, Karten 0,67 GB → ca. 12 GB mit allen Varianten; Datenbank 1–3 GB/Jahr (Schätzung) → unkritisch.
+**Verbleibende Risiken:** Wärme über Stunden; E4B-Qualität beim Schreiben; Android-15-Dienstlimit (6 h).
 
 ## 7. Karte, Tiles, Newsroom
 **Stufen:** (0) Analyse-Modus: Canvas-Karte (siehe 4). (1) "Karte öffnen": MapLibre Native flach (Mercator), lokale PMTiles, Pins als GeoJSON-Ebene mit animierter Deckkraft/Radius, Clustering bei Zoom-Out, Ebenen (Erdbeben USGS, Brände FIRMS, Katastrophen GDACS, Unwetter DWD/Open-Meteo, Konflikte) ein-/ausschaltbar; Batch-LLM pausiert solange die Karte offen ist. (2) Globus optional später: MapLibre GL JS im WebView (lokale Seite, nur lokale Daten) oder natives Build, sobald stabil – **MapLibre Native Android hat noch KEINE fertige Globe-Projektion** (Stand Aug 2026 nur großer Pull-Request/Vorabbuild "13.7.0-pre-globe.0").
@@ -111,7 +145,8 @@ Private News-Intelligence-App für Android (Samsung Galaxy S23, 128 GB, Snapdrag
 - **S10** Lokalradar. **S11** Live-Ansicht auf Abruf. **S12** Quellenregister, Profiler, Perspektiven, Sicherheitshärtung. **S13** Drive-Backup/Haushalt.
 
 ## 12. Stand & Entscheidungen (am Ende jedes Chats/Laufs aktualisieren)
-- **Aktuell (19.11.2026, Lauf 1 = S0 + S0b):** Alles wird per GitHub Actions gebaut und getestet (Nutzer baut nichts). Release `bench-latest` enthält die fertige APK. CI-Stand: core 29 JVM-Tests grün; Bench-APK baut; Room: 9/9 Instrumented-Tests grün auf Emulator (API 34); **End-to-End-Smoke-Test im Emulator grün** (HF-Suche → Download → LiteRT-LM laden → Generieren → Extraktion Zeilen + JSON → Embedding). **S23-Messwerte stehen noch aus** – Abschnitt 6 bleibt Schätzung, bis die App einmal im Auto-Modus auf dem S23 lief.
+- **Aktuell (20.11.2026): S0-Benchmark auf dem S23 GEMESSEN** → Abschnitt 6 enthält echte Werte und Entscheidungen; Rohdaten `docs/messungen/2026-11-20_s23_bench.csv`, Tabellen `…_auswertung.md`. Korrekturen nach Auswertung: Embedding-Cache je Modell getrennt (1. Messung ungültig), Hitze-Regel `DutyPolicy.MEASURED` (Pause ab SEVERE), Preflight/Degradation auf gemessene Temperaturen angepasst. **Nachtest (~1,5 h)** in der Bench-App: Embedding neu, Extraktion mit E2B-gpu-Datei, 60 min Dauerlast.
+- **Lauf 1 (19.11.2026, S0 + S0b):** Alles wird per GitHub Actions gebaut und getestet (Nutzer baut nichts). Release `bench-latest` enthält die fertige APK. CI-Stand: core 29 JVM-Tests grün; Bench-APK baut; Room: 9/9 Instrumented-Tests grün auf Emulator (API 34); **End-to-End-Smoke-Test im Emulator grün** (HF-Suche → Download → LiteRT-LM laden → Generieren → Extraktion Zeilen + JSON → Embedding). **S23-Messwerte stehen noch aus** – Abschnitt 6 bleibt Schätzung, bis die App einmal im Auto-Modus auf dem S23 lief.
 - **Belegt per Emulator-Lauf (keine S23-Leistungsdaten, nur Fakten zu Dateien/Fähigkeiten):** HF `litert-community` hat `gemma-4-E2B-it.litertlm` (2,47 GB, CPU+GPU, **MTP-fähig**, Kontext 4096), `-gpu` (2,2 GB), `-web` (1,9 GB, nur WebGPU – fürs Handy ungeeignet), NPU-Builds nur für Tensor G5/G6 und QCS8275 (**kein SM8550 = S23** für Gemma 4 → NPU für LLM auf S23 nicht möglich); E4B analog (3,49 GB / 3,16 GB gpu). **EmbeddingGemma 2** als Text-270M (157 MB), Text+Bild-440M (369 MB), 740M (462 MB) – **jeweils auch als `_Qualcomm_SM8550`-NPU-Build** → Embedding auf der S23-NPU testbar. EmbeddingGemma 1 nur als Tensor-G4-NPU-Datei → Vergleich 1 vs. 2 entfällt, stattdessen 270M/440M/740M + NPU. **Kein Gemma-4-QAT als .litertlm gefunden.** Erster Extraktionsblick (E2B, CPU, 1 Artikel): Zeilenformat parsebar, Belegspannen wörtlich, aber Claims zu wenig atomar; erzwungenes JSON parsebar, aber leere/inhaltslose `claim`-Felder → Constraint Tax wahrscheinlich, S23-Test entscheidet.
 - **Geprüft (LiteRT-LM v0.19.0, Quellcode/README):** `litertlm-android` 0.19.0 (Kotlin ≥ 2.3 nötig); `Backend.CPU/GPU/NPU(nativeLibraryDir)`; GPU braucht `uses-native-library` libOpenCL/libvndksupport; `Conversation.getBenchmarkInfo()` liefert Init-Zeit, TTFT, Prefill-/Decode-Token und -Token/s (nach `ExperimentalFlags.enableBenchmark = true`) → Laden/Prefill/Decode sauber trennbar; MTP = `SpeculativeDecodingConfig(OFF/ON/ADAPTIVE)` + `ModelInfo.hasSpeculativeDecodingSupport()`; erzwungenes JSON = `ResponseFormat.json(schema)` + `enableResponseFormat` (0.19: GPU-beschleunigte Logit-Maske, auch mit MTP); `ThinkingConfig`, `maxOutputToken`, `SamplerConfig(temperature 0)`; `EmbeddingEngine` (EmbeddingGemma läuft in derselben Laufzeit, `EmbeddingOptions.outputSize` für Matryoshka); `ModelInfo.npuBrand/socName` zeigt, für welchen NPU eine Datei gebaut ist. E4B-Dateiname `gemma-4-E4B-it.litertlm` im Repo `litert-community/gemma-4-E4B-it-litert-lm` bestätigt; E2B-Name abgeleitet.
 - **Prüfraster S0 (Ergebnis je Punkt):**

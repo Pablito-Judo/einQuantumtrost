@@ -75,6 +75,7 @@ class BenchService : LifecycleService() {
         when (s.id) {
             TestId.DOWNLOAD -> downloadModels(run)
             TestId.AUTO_ALL -> autoAll(s, run, llm, q)
+            TestId.NACHTEST -> nachtest(run, llm, q)
             TestId.MODEL_INFO -> llm.modelInfo(s.llmModels + s.embedModels)
             TestId.LOAD_PREFILL_DECODE -> llm.loadPrefillDecode(needModel(), s.backend, s.mtp)
             TestId.BACKEND_MATRIX -> llm.backendMatrix(needModel(), s.mtp)
@@ -153,6 +154,37 @@ class BenchService : LifecycleService() {
         if (e4b != null) step(TestId.RAM_SUSTAIN) { t.ramSustain(e4b, gpu, s.minutes) }
         step(TestId.FGS_LONG) { fgsLong(s.copy(fgsHours = 6.5), run, t) }
         ResultLog.info("AUTO FERTIG – bitte „CSV teilen“ drücken und an Claude schicken.")
+    }
+
+    /**
+     * Nachtest nach Auswertung 20.11.: (1) Embedding mit getrenntem Cache je Modell (erster Lauf lieferte identische
+     * Vektoren für alle Modelle), (2) Extraktion mit der schnelleren GPU-Datei, (3) 60 min Dauerlast mit gemessener
+     * Hitze-Regel (Pause erst ab SEVERE), Bildschirm aus, RAM jede Minute.
+     */
+    private suspend fun nachtest(run: String, t: LlmTests, q: QualityTests) {
+        suspend fun step(name: String, block: suspend () -> Unit) {
+            ResultLog.info("── Nachtest: $name")
+            try { block() } catch (e: Throwable) {
+                if (e is CancellationException) throw e
+                ResultLog.rec(RunCtx(run, "nachtest", variant = name), "step_error", "${e.javaClass.simpleName}: ${e.message}".take(300), "", dev.snapshot(false))
+            }
+        }
+        val files = localModels()
+        val embs = files.filter { ModelStore.roleOf(it.name) == ModelStore.Role.EMBEDDING }
+        val e2bGpu = files.firstOrNull { ModelStore.roleOf(it.name) == ModelStore.Role.E2B && "-gpu" in it.name.lowercase() }
+            ?: ModelStore.mainFile(files, ModelStore.Role.E2B) ?: error("Kein E2B-Modell vorhanden")
+        ResultLog.info("Nachtest: E2B=${e2bGpu.name}, Embedding=${embs.map { it.name }}")
+        BenchState.keepScreen.value = false
+        step("embedding") { q.embedding(embs, listOf(BackendChoice.CPU, BackendChoice.GPU)) }
+        step("extraktion_gpu_datei") { q.extraction(e2bGpu, BackendChoice.GPU) }
+        step("dauerlast_60min") {
+            t.cooldown("sustained_60")
+            Llm.load(this, e2bGpu, BackendChoice.GPU).use { llm ->
+                t.llmLoop(llm, RunCtx(run, "sustained_60", e2bGpu.name, "GPU", "measured_policy"), 60,
+                    de.worldpulse.core.bench.DutyPolicy.MEASURED, ramEveryMs = 60_000)
+            }
+        }
+        ResultLog.info("NACHTEST FERTIG – bitte „CSV teilen“ und an Claude schicken.")
     }
 
     /** Test 9: Herzschlag je Minute über viele Stunden; optional leichte LLM-Last alle 5 min. */

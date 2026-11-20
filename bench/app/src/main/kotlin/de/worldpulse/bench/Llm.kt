@@ -28,6 +28,9 @@ enum class BackendChoice { CPU, GPU, NPU;
     }
 }
 
+fun cacheDirFor(ctx: Context, model: File, backend: String): String =
+    File(ctx.cacheDir, "litertlm/${model.nameWithoutExtension}_$backend").apply { mkdirs() }.path
+
 /** MTP/spekulatives Dekodieren: null = Modell-Standard. */
 enum class MtpChoice(val mode: SpeculativeDecodingMode?) { DEFAULT(null), ON(SpeculativeDecodingMode.ON), OFF(SpeculativeDecodingMode.OFF) }
 
@@ -60,7 +63,8 @@ class Llm private constructor(
                 modelPath = modelFile.absolutePath,
                 backend = backend.toBackend(ctx),
                 maxNumTokens = maxNumTokens,
-                cacheDir = ctx.cacheDir.path,
+                // Eigener Cache je Datei+Backend: Nachtest 20.11. zeigte Cache-Verwechslung bei gemeinsamem Ordner
+                cacheDir = cacheDirFor(ctx, modelFile, backend.name),
                 speculativeDecodingConfig = mtp.mode?.let { SpeculativeDecodingConfig(mode = it) },
             )
             val engine = Engine(cfg)

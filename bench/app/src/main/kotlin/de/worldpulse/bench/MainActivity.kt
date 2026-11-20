@@ -95,8 +95,8 @@ private fun BenchScreen(modelDir: File) {
     }
 
     Column(Modifier.fillMaxSize().background(Color.Black).padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text("WP Bench – einfach: Ladekabel anstecken, WLAN an, oben „ALLES AUTOMATISCH“ drücken, Handy liegen lassen. " +
-            "Am Ende „CSV teilen“ und die Datei an Claude schicken.", fontSize = 13.sp, color = Color(0xFFFFE082))
+        Text("WP Bench – Nachtest: Ladekabel anstecken, oben „NACHTEST“ drücken, Handy ca. 1,5 h liegen lassen. " +
+            "Am Ende „CSV teilen“ und die Datei an Claude schicken. (Modelle sind schon geladen.)", fontSize = 13.sp, color = Color(0xFFFFE082))
         Text("Modelle in: ${modelDir.absolutePath}", fontSize = 11.sp, color = Color.Gray)
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             OutlinedButton(onClick = { files = scan(modelDir) }) { Text("Neu einlesen") }

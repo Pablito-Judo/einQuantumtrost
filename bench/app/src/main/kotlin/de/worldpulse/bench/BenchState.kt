@@ -5,7 +5,8 @@ import java.io.File
 
 /** Alle Tests aus START_PROMPT Auftrag 1 (Nummern = Punkte 1–9). */
 enum class TestId(val label: String) {
-    AUTO_ALL("▶ ALLES AUTOMATISCH (Modelle laden + alle Tests, ca. 10–12 h)"),
+    NACHTEST("▶ NACHTEST (Embedding neu, Extraktion mit -gpu-Datei, 60 min Dauerlast · ca. 1,5 h)"),
+    AUTO_ALL("ALLES AUTOMATISCH (Modelle laden + alle Tests, ca. 10–12 h)"),
     DOWNLOAD("Modelle von Hugging Face laden"),
     MODEL_INFO("0 Modell-Info (Typ, MTP, Backends, NPU)"),
     LOAD_PREFILL_DECODE("1 Laden / Prefill 500-1000-2000 / Decode"),

@@ -68,7 +68,16 @@ data class DutyPolicy(
     val pauseAt: Thermal = Thermal.MODERATE,
     val resumeBelow: Thermal = Thermal.MODERATE,
     val enabled: Boolean = true,
-)
+) {
+    companion object {
+        /**
+         * Nach S23-Messung 20.11.2026: Bei Thermal MODERATE (Akku ~42,5 °C) blieb der GPU-Durchsatz über 10 min
+         * konstant (25–26 tok/s); feste 60/30-Pausen kosteten 45 % Durchsatz ohne Nutzen. Daher: keine festen Pausen,
+         * Pause erst ab SEVERE, weiter unter MODERATE. Langzeitverhalten (> 10 min) wird im Nachtest gemessen.
+         */
+        val MEASURED = DutyPolicy(workMs = Long.MAX_VALUE / 4, pauseMs = 0, pauseAt = Thermal.SEVERE, resumeBelow = Thermal.MODERATE)
+    }
+}
 
 enum class DutyAction { WORK, PAUSE_SCHEDULED, PAUSE_THERMAL }
 
