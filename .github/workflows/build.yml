@@ -32,6 +32,15 @@ jobs:
         working-directory: core
         run: ./gradlew test --console=plain
 
+      - name: Live-Probe der Quellen (RSS/Atom/GDELT)
+        continue-on-error: true
+        working-directory: core
+        run: ./gradlew liveProbe --console=plain -q 2>&1 | grep PROBE || true
+
+      - name: GDELT-Format (Rohantwort, Ausschnitt)
+        continue-on-error: true
+        run: curl -sf "https://api.gdeltproject.org/api/v2/doc/doc?query=Heilbronn&mode=ArtList&format=json&maxrecords=2&timespan=3d" | head -c 1500 || echo "GDELT nicht erreichbar"
+
       - name: bench – Release-APK
         working-directory: bench
         run: ./gradlew :app:assembleRelease --console=plain

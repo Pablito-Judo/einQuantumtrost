@@ -19,8 +19,18 @@ kotlin {
 
 dependencies {
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
+    // S2 Scout: HTML-Bereinigung (deterministisch, ohne JavaScript) und Quellenregister sources.yaml
+    api("org.jsoup:jsoup:1.24.1")
+    implementation("com.charleskorn.kaml:kaml:0.104.0")
     testImplementation(kotlin("test"))
     testImplementation("com.networknt:json-schema-validator:1.5.9")
 }
 
 tasks.test { useJUnitPlatform() }
+
+// Live-Probe der Quellen (nur mit Internet, z. B. im CI): ./gradlew liveProbe
+tasks.register<JavaExec>("liveProbe") {
+    group = "verification"
+    classpath = sourceSets["test"].runtimeClasspath
+    mainClass.set("de.worldpulse.core.scout.LiveProbeKt")
+}
