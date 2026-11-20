@@ -37,15 +37,6 @@ jobs:
         working-directory: core
         run: ./gradlew liveProbe --console=plain -q 2>&1 | grep PROBE || true
 
-      - name: Presseportal – Dienststellen-ID Polizei Heilbronn suchen (POL-HN)
-        continue-on-error: true
-        run: |
-          for id in $(seq 110960 110985); do
-            t=$(curl -sf -A "WorldPulse-CI" "https://www.presseportal.de/rss/dienststelle_$id.rss2" | grep -o '<title>[^<]*' | sed -n 2p | cut -c8-60)
-            [ -n "$t" ] && echo "ID $id: $t"
-            sleep 0.5
-          done | grep -E "POL-HN|Heilbronn|POL-" | head -30 || true
-
       - name: GDELT-Format (Rohantwort, Ausschnitt)
         continue-on-error: true
         run: |
