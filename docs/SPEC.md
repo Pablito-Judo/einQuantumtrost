@@ -95,7 +95,7 @@ Private News-Intelligence-App für Android (Samsung Galaxy S23, 128 GB, Snapdrag
 | E4B GPU | Zeilen | 1,00 | 0,50 | 0,53 | 0,52 | 14,3 |
 | E4B GPU | erzwungenes JSON | 0,80 | 0,54 | 0,78 | 0,64 | 27,7 |
 → **Constraint Tax bestätigt** (JSON klar am schlechtesten bei E2B). Belegspannen in allen Formaten zu 94–100 % wörtlich. E4B ist bei Extraktion schlechter UND 2–3× langsamer (kleines, synthetisches Test-Set – am Goldstandard bestätigen).
-**Wärme:** 10 min Dauerlast E2B GPU: Akku 42,6 °C, Thermal MODERATE, Headroom 0,93 – **Durchsatz konstant 25–26 tok/s, keine Drosselung**. Duty-Cycling 60/30 mit Pause ab MODERATE: 38 °C, aber nur 55 % des Durchsatzes → Regel geändert (Pause erst ab SEVERE / Akku ≥ 44 °C; `DutyPolicy.MEASURED`). Langzeit > 10 min: Nachtest 60 min.
+**Wärme:** 10 min Dauerlast E2B GPU: Akku 42,6 °C, Thermal MODERATE, Headroom 0,93 – **Durchsatz konstant 25–26 tok/s, keine Drosselung**. Duty-Cycling 60/30 mit Pause ab MODERATE: 38 °C, aber nur 55 % des Durchsatzes → **Nutzervorgabe (Akku-Schonung): Pause ab 40 °C Akku ODER Thermal MODERATE, weiter erst unter 38 °C; keine festen Pausen** (`DutyPolicy.CAUTIOUS`); Analyse-Start nur unter 38 °C; ab 40 °C Degradation „heiß“ (nur Sammeln + Embedding). Durchsatz unter dieser Regel misst der Nachtest (60 min).
 **Bildschirm:** Karten-Ansicht vs. Bildschirm aus: gleicher Durchsatz (26 tok/s), Temperatur 42,7 vs. 42,2 °C → Karte kostet praktisch nichts (Bildschirm ging erst nach 8 min aus; Vergleich schwach).
 **E4B-RAM-Test (10 min GPU):** **nicht beendet**, kein lowMemory, min. 770 MB frei, 11–12 tok/s, 43,4 °C → E4B auf dem S23 lauffähig.
 **Android-15-Dienst:** `onTimeout` (dataSync) kam um 09:31 nach ~8 h Gesamtlaufzeit des Dienstes (Android zählt nur Hintergrundzeit; Limit 6 h/24 h), sauber gestoppt → Analyse-Sitzungen ≤ 6 h Hintergrund bzw. Neustart bei sichtbarer App (wie geplant).
@@ -106,7 +106,7 @@ Private News-Intelligence-App für Android (Samsung Galaxy S23, 128 GB, Snapdrag
 - **Schreiben (Dossier):** E2B GPU als Standard (Abschnitt ~13–18 s); **E4B: ja als Option** (RAM ok, ~26–29 s/Abschnitt), aber erst nach Qualitätsvergleich am Goldstandard in S6 einsetzen.
 - **Embedding:** EmbeddingGemma 2 auf GPU, mit Aufgaben-Präfix; Modellgröße nach Nachtest.
 - **NPU:** nicht nutzen. **MTP:** aus. **Kein erzwungenes JSON** für Extraktion.
-- **Durchsatz (gemessen, ohne Duty-Pausen):** Extraktion ~360 Artikel/h → **8-h-Nacht ≈ 2.900 Artikel** (frühere Schätzung 300–450); Dossier-Abschnitt ≈ 13–18 s → ~200–270/h. Mit Sicherheitsabschlag (Wärme-Langzeit unbekannt, Scout/Embedding parallel) planerisch **~1.500–2.000 Artikel pro Nacht**.
+- **Durchsatz:** ohne Pausen ~360 Artikel/h (2.900/Nacht); mit der vorsichtigen 40/38-°C-Regel vermutlich ~55 % davon (Wert der 60/30-Pausen, die 38–39,5 °C hielten) → **planerisch ~1.200–1.600 Artikel pro 8-h-Nacht** (Schätzung, Nachtest ersetzt sie). Dossier-Abschnitt ≈ 13–18 s.
 - **Live-Chat:** TTFT ~1 s bei 1000 Token Kontext (E2B GPU, Modell geladen) → GRÜN (statt GELB). Laden kostet 9–11 s einmalig.
 **Speicher:** Modelle E2B 2,5 (+2,2 -gpu), E4B 3,5 (+3,2), Embedding 0,2–0,5 GB, Karten 0,67 GB → ca. 12 GB mit allen Varianten; Datenbank 1–3 GB/Jahr (Schätzung) → unkritisch.
 **Verbleibende Risiken:** Wärme über Stunden; E4B-Qualität beim Schreiben; Android-15-Dienstlimit (6 h).

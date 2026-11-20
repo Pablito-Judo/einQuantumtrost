@@ -23,11 +23,12 @@ data class DeviceState(
 
 data class Limits(
     val minBatteryPct: Int = 30,
-    val maxStartTempC: Double = 40.0,
+    /** Nutzervorgabe 20.11.: vorsichtig – Start nur unter 38 °C. */
+    val maxStartTempC: Double = 38.0,
     val minFreeStorageMb: Long = 2_000,
     val lowStorageMb: Long = 5_000,
-    /** Messung 20.11.: 42,5–43,4 °C ohne Durchsatzverlust -> Schwelle 44 °C (Schätzung, Nachtest 60 min). */
-    val hotTempC: Double = 44.0,
+    /** Nutzervorgabe 20.11.: ab 40 °C nur noch Arbeit ohne LLM (Messung: 42–43 °C wären technisch möglich). */
+    val hotTempC: Double = 40.0,
 )
 
 /** Degradationsstufen (SPEC 4): normal → heiß (nur Sammeln+Embedding) → Akku niedrig (nur Sammeln) → Speicher knapp (Haushalt zuerst). */
@@ -52,7 +53,7 @@ object Preflight {
         if (!d.charging) reasons += "Ladekabel fehlt"
         if (d.batteryPct < limits.minBatteryPct) reasons += "Akku unter ${limits.minBatteryPct} %"
         if (d.batteryTempC > limits.maxStartTempC) reasons += "Akku zu warm (${d.batteryTempC} °C)"
-        if (d.thermal.code >= Thermal.SEVERE.code) reasons += "Thermal-Status ${d.thermal}"
+        if (d.thermal.code >= Thermal.MODERATE.code) reasons += "Thermal-Status ${d.thermal}"
         if (!d.wifi) reasons += "kein WLAN (nur Analyse vorhandener Daten)"
         if (d.freeStorageMb < limits.minFreeStorageMb) reasons += "Speicher unter ${limits.minFreeStorageMb} MB"
         if (deadlineMs - d.nowMs < 15 * 60_000) reasons += "Zeitbudget unter 15 min"
@@ -64,7 +65,7 @@ object Preflight {
     fun level(d: DeviceState, limits: Limits = Limits()): Level = when {
         d.freeStorageMb < limits.lowStorageMb -> Level.SPEICHER_KNAPP
         !d.charging && d.batteryPct < limits.minBatteryPct -> Level.AKKU_NIEDRIG
-        d.thermal.code >= Thermal.SEVERE.code || d.batteryTempC >= limits.hotTempC -> Level.HEISS
+        d.thermal.code >= Thermal.MODERATE.code || d.batteryTempC >= limits.hotTempC -> Level.HEISS
         else -> Level.NORMAL
     }
 }

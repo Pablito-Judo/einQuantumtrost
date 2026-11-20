@@ -162,7 +162,8 @@ class LlmTests(private val ctx: Context, private val dev: Device, private val ru
         var i = 0; var pausedMs = 0L
         while (SystemClock.elapsedRealtime() < end) {
             val now = SystemClock.elapsedRealtime()
-            when (cycler?.decide(now, dev.lastThermal) ?: DutyAction.WORK) {
+            val tempC = if (cycler != null) dev.snapshot(withPss = false).batteryTempC else Double.NaN
+            when (cycler?.decide(now, dev.lastThermal, tempC) ?: DutyAction.WORK) {
                 DutyAction.WORK -> {
                     val prompt = pool[i % pool.size] + "\n\nWrite a neutral background paragraph (about 150 words) on this news."
                     BenchState.progress.value = "${c.test}: Aufruf ${i + 1}, ${(end - now) / 1000}s übrig"

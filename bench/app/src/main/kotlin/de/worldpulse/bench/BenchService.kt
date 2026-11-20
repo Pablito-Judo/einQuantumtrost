@@ -158,8 +158,8 @@ class BenchService : LifecycleService() {
 
     /**
      * Nachtest nach Auswertung 20.11.: (1) Embedding mit getrenntem Cache je Modell (erster Lauf lieferte identische
-     * Vektoren für alle Modelle), (2) Extraktion mit der schnelleren GPU-Datei, (3) 60 min Dauerlast mit gemessener
-     * Hitze-Regel (Pause erst ab SEVERE), Bildschirm aus, RAM jede Minute.
+     * Vektoren für alle Modelle), (2) Extraktion mit der schnelleren GPU-Datei, (3) 60 min Dauerlast mit vorsichtiger
+     * Hitze-Regel (Pause ab 40 °C/MODERATE, weiter unter 38 °C), Bildschirm aus, RAM jede Minute.
      */
     private suspend fun nachtest(run: String, t: LlmTests, q: QualityTests) {
         suspend fun step(name: String, block: suspend () -> Unit) {
@@ -180,8 +180,8 @@ class BenchService : LifecycleService() {
         step("dauerlast_60min") {
             t.cooldown("sustained_60")
             Llm.load(this, e2bGpu, BackendChoice.GPU).use { llm ->
-                t.llmLoop(llm, RunCtx(run, "sustained_60", e2bGpu.name, "GPU", "measured_policy"), 60,
-                    de.worldpulse.core.bench.DutyPolicy.MEASURED, ramEveryMs = 60_000)
+                t.llmLoop(llm, RunCtx(run, "sustained_60", e2bGpu.name, "GPU", "cautious_40_38"), 60,
+                    de.worldpulse.core.bench.DutyPolicy.CAUTIOUS, ramEveryMs = 60_000)
             }
         }
         ResultLog.info("NACHTEST FERTIG – bitte „CSV teilen“ und an Claude schicken.")

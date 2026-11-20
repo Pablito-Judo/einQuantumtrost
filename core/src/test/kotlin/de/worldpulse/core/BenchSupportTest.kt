@@ -29,12 +29,14 @@ class BenchSupportTest {
         assertEquals(DutyAction.WORK, d.decide(210_000, Thermal.LIGHT))
     }
 
-    @Test fun measured_policy_works_through_moderate_pauses_at_severe() {
-        val d = DutyCycler(DutyPolicy.MEASURED, 0)
-        assertEquals(DutyAction.WORK, d.decide(3_600_000, Thermal.MODERATE))
-        assertEquals(DutyAction.PAUSE_THERMAL, d.decide(3_700_000, Thermal.SEVERE))
-        assertEquals(DutyAction.PAUSE_THERMAL, d.decide(3_800_000, Thermal.MODERATE))
-        assertEquals(DutyAction.WORK, d.decide(3_900_000, Thermal.LIGHT))
+    @Test fun cautious_policy_pauses_at_40_resumes_below_38() {
+        val d = DutyCycler(DutyPolicy.CAUTIOUS, 0)
+        assertEquals(DutyAction.WORK, d.decide(60_000, Thermal.LIGHT, 39.5))
+        assertEquals(DutyAction.PAUSE_THERMAL, d.decide(120_000, Thermal.LIGHT, 40.0))
+        assertEquals(DutyAction.PAUSE_THERMAL, d.decide(180_000, Thermal.NONE, 38.5))   // Hysterese
+        assertEquals(DutyAction.WORK, d.decide(240_000, Thermal.NONE, 37.9))
+        assertEquals(DutyAction.PAUSE_THERMAL, d.decide(300_000, Thermal.MODERATE, 37.0)) // Android-Status zählt auch
+        assertEquals(DutyAction.WORK, d.decide(10_000_000, Thermal.LIGHT, 37.0))           // keine festen Pausen
     }
 
     @Test fun disabled_policy_always_works() {

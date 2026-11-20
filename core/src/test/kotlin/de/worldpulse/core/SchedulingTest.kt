@@ -19,7 +19,7 @@ class SchedulingTest {
 
     @Test fun preflight_blocks_and_explains() {
         assertTrue(Preflight.check(ok, deadlineMs = 8 * 3600_000).canStart)
-        val r = Preflight.check(ok.copy(charging = false, thermal = Thermal.SEVERE), 8 * 3600_000)
+        val r = Preflight.check(ok.copy(charging = false, thermal = Thermal.MODERATE), 8 * 3600_000)
         assertFalse(r.canStart); assertTrue(r.reasons.any { "Ladekabel" in it }); assertTrue(r.reasons.any { "Thermal" in it })
         assertTrue(Preflight.check(ok.copy(wifi = false), 8 * 3600_000).canStart) // ohne WLAN: nur Warnung
         assertFalse(Preflight.check(ok, deadlineMs = 10 * 60_000).canStart)
@@ -27,9 +27,10 @@ class SchedulingTest {
 
     @Test fun degradation_levels() {
         assertEquals(Level.NORMAL, Preflight.level(ok))
-        assertEquals(Level.NORMAL, Preflight.level(ok.copy(thermal = Thermal.MODERATE, batteryTempC = 42.6))) // gemessen: kein Durchsatzverlust
-        assertEquals(Level.HEISS, Preflight.level(ok.copy(thermal = Thermal.SEVERE)))
-        assertEquals(Level.HEISS, Preflight.level(ok.copy(batteryTempC = 44.5)))
+        assertEquals(Level.NORMAL, Preflight.level(ok.copy(batteryTempC = 39.5)))
+        assertEquals(Level.HEISS, Preflight.level(ok.copy(thermal = Thermal.MODERATE)))
+        assertEquals(Level.HEISS, Preflight.level(ok.copy(batteryTempC = 40.0)))   // Nutzervorgabe
+        assertFalse(Preflight.check(ok.copy(batteryTempC = 38.5), 8 * 3600_000).canStart)
         assertEquals(Level.AKKU_NIEDRIG, Preflight.level(ok.copy(charging = false, batteryPct = 20)))
         assertEquals(Level.SPEICHER_KNAPP, Preflight.level(ok.copy(freeStorageMb = 1_000)))
         assertFalse(Phase.EXTRAKTION in Level.HEISS.allowed); assertTrue(Phase.EMBEDDING in Level.HEISS.allowed)

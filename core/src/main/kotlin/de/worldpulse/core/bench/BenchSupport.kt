@@ -68,14 +68,21 @@ data class DutyPolicy(
     val pauseAt: Thermal = Thermal.MODERATE,
     val resumeBelow: Thermal = Thermal.MODERATE,
     val enabled: Boolean = true,
+    /** Akkutemperatur-Grenze: ab hier Pause (NaN = aus). */
+    val pauseAtTempC: Double = Double.NaN,
+    /** Weiter erst unter dieser Temperatur (Hysterese gegen Hin-und-her-Springen). */
+    val resumeBelowTempC: Double = Double.NaN,
 ) {
     companion object {
         /**
-         * Nach S23-Messung 20.11.2026: Bei Thermal MODERATE (Akku ~42,5 °C) blieb der GPU-Durchsatz über 10 min
-         * konstant (25–26 tok/s); feste 60/30-Pausen kosteten 45 % Durchsatz ohne Nutzen. Daher: keine festen Pausen,
-         * Pause erst ab SEVERE, weiter unter MODERATE. Langzeitverhalten (> 10 min) wird im Nachtest gemessen.
+         * Nutzervorgabe 20.11.2026 (Akku-Schonung): Pause ab 40 °C Akkutemperatur oder Thermal MODERATE,
+         * weiter erst unter 38 °C UND unter MODERATE. Keine festen Pausen (Messung: kosteten 45 % ohne Nutzen).
+         * Messung zum Vergleich: Dauerlast E2B GPU erreichte 42,6 °C ohne Durchsatzverlust; 60/30-Pausen hielten 38–39,5 °C.
          */
-        val MEASURED = DutyPolicy(workMs = Long.MAX_VALUE / 4, pauseMs = 0, pauseAt = Thermal.SEVERE, resumeBelow = Thermal.MODERATE)
+        val CAUTIOUS = DutyPolicy(
+            workMs = Long.MAX_VALUE / 4, pauseMs = 0, pauseAt = Thermal.MODERATE, resumeBelow = Thermal.MODERATE,
+            pauseAtTempC = 40.0, resumeBelowTempC = 38.0,
+        )
     }
 }
 
@@ -86,11 +93,13 @@ class DutyCycler(private val policy: DutyPolicy, startMs: Long) {
     private var inPause = false
     private var thermalHold = false
 
-    fun decide(nowMs: Long, thermal: Thermal): DutyAction {
+    fun decide(nowMs: Long, thermal: Thermal, batteryTempC: Double = Double.NaN): DutyAction {
         if (!policy.enabled) return DutyAction.WORK
         if (thermal != Thermal.UNKNOWN && thermal.code >= policy.pauseAt.code) thermalHold = true
+        if (!policy.pauseAtTempC.isNaN() && !batteryTempC.isNaN() && batteryTempC >= policy.pauseAtTempC) thermalHold = true
         if (thermalHold) {
             if (thermal == Thermal.UNKNOWN || thermal.code >= policy.resumeBelow.code) return DutyAction.PAUSE_THERMAL
+            if (!policy.resumeBelowTempC.isNaN() && (batteryTempC.isNaN() || batteryTempC >= policy.resumeBelowTempC)) return DutyAction.PAUSE_THERMAL
             thermalHold = false
             phaseStart = nowMs; inPause = false
         }
