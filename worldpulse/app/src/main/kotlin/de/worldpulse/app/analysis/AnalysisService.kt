@@ -101,6 +101,7 @@ class AnalysisService : LifecycleService() {
         status.value = status.value.copy(phase = "Modell starten (${if (LocalLlm.isEmulator) "CPU" else "GPU"})")
         LocalLlm.load(this, ModelFiles.file(this, ModelFiles.E2B)).use { llm ->
             val extractor = ClaimExtractor({ sys, user, max -> llm.generate(sys, user, max).text })
+            status.value = status.value.copy(phase = "Extraktion (${llm.backendName})")
             var done = 0; var claimsTotal = 0
             for (doc in todo) {
                 if (System.currentTimeMillis() > deadline) break
