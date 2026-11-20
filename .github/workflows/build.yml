@@ -37,9 +37,18 @@ jobs:
         working-directory: core
         run: ./gradlew liveProbe --console=plain -q 2>&1 | grep PROBE || true
 
+      - name: Presseportal – Dienststellen-ID Polizei Heilbronn suchen
+        continue-on-error: true
+        run: |
+          for u in "https://www.presseportal.de/blaulicht/l/baden-wuerttemberg" "https://www.presseportal.de/blaulicht/s/heilbronn"; do
+            echo "== $u"; curl -sfL -A "Mozilla/5.0 WorldPulse-CI" "$u" | grep -oiE '(/blaulicht/nr/[0-9]+|dienststelle_[0-9]+)[^<]{0,160}' | grep -i -B1 -A1 "heilbronn" | head -20 || echo "nichts gefunden"
+          done
+
       - name: GDELT-Format (Rohantwort, Ausschnitt)
         continue-on-error: true
-        run: curl -sf "https://api.gdeltproject.org/api/v2/doc/doc?query=Heilbronn&mode=ArtList&format=json&maxrecords=2&timespan=3d" | head -c 1500 || echo "GDELT nicht erreichbar"
+        run: |
+          sleep 20 # GDELT drosselt (HTTP 429) – Abstand zur Live-Probe
+          curl -s -w "\nHTTP %{http_code}\n" "https://api.gdeltproject.org/api/v2/doc/doc?query=Heilbronn&mode=ArtList&format=json&maxrecords=2&timespan=3d" | head -c 1500
 
       - name: bench – Release-APK
         working-directory: bench
@@ -182,7 +191,8 @@ jobs:
             adb logcat -c || true
             ./gradlew :app:connectedDebugAndroidTest --console=plain || echo "S1_TEST_FAILED"
             adb logcat -d -s S1:I MapLibre:E Mbgl:E AndroidRuntime:E | tail -n 200
-            mkdir -p ../shots && adb pull /sdcard/Android/data/de.worldpulse.app/files/shots ../shots/ || true
+            bash tools/ci_screens.sh ../shots || true
+            adb logcat -d -s AndroidRuntime:E | tail -n 50
       - name: Screenshots in Branch ci-screens
         run: |
           ls -R shots || exit 0

@@ -21,6 +21,8 @@ data class SourceDef(
     val approved: Boolean = false,
     @SerialName("state_media") val stateMedia: Boolean = false,
     val sanctioned: Boolean = false,
+    /** false = nur Titel/Zusammenfassung aus dem Feed (Messnetze wie USGS/GDACS, sanktionierte Medien). */
+    val fulltext: Boolean = true,
     /** Fallback-Adapter für HTML: CSS-Selektor für Artikel-Links. */
     val selector: String? = null,
     val note: String? = null,
