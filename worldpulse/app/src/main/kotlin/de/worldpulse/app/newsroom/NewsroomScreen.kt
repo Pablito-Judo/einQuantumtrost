@@ -47,7 +47,9 @@ fun NewsroomScreen(events: List<UiEventEntity>, onOpen: (UiEventEntity) -> Unit)
     ) {
         item {
             Text("Newsroom" + (since?.let { " · seit $it" } ?: ""), color = WpColors.text, fontSize = 20.sp)
-            Text("${shown.size} Ereignisse · Demo-Daten bis die Pipeline läuft", color = WpColors.dim, fontSize = 12.sp)
+            val demo = events.any { it.eventId == null }
+            Text("${shown.size} Ereignisse" + if (demo) " · Demo-Daten (Quellen freigeben → echte Meldungen)" else " · aus freigegebenen Quellen",
+                color = WpColors.dim, fontSize = 12.sp)
             Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf("alle", "lokal", "konflikt").forEach { f ->
                     FilterChip(selected = filter == f, onClick = { filter = f }, label = { Text(f) })

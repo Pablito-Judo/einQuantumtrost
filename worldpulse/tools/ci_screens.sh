@@ -32,3 +32,10 @@ shot 4_heilbronn KARTE 49.15,9.21,12
 shot 5_newsroom NEWSROOM
 shot 6_analyse ANALYSE
 shot 8_eingang EINGANG
+# S4: Analyse-Dienst echt laufen lassen (Emulator: CPU-Rückfall, langsam) – Modell-Download ~2,5 GB + einige Artikel
+adb shell am force-stop $PKG
+adb shell am start -n $PKG/.MainActivity --es tab ANALYSE --ez startAnalysis true --el budgetMs 1200000
+sleep 840
+adb exec-out screencap -p > "$OUT/9_analyse_lauf.png"
+shot 10_newsroom_nach_analyse NEWSROOM
+adb shell "run-as $PKG ls -la files" 2>/dev/null | head -5 || true

@@ -49,6 +49,10 @@ class MainActivity : ComponentActivity() {
                 .forEach { app.db.sources().setApproved(it.id, true) }
             de.worldpulse.app.scout.ScoutWorker.runNow(app)
         }
+        // CI/Test: Analyse direkt starten (kurzes Zeitbudget)
+        if (savedInstanceState == null && intent.getBooleanExtra("startAnalysis", false)) {
+            de.worldpulse.app.analysis.AnalysisService.start(this, intent.getLongExtra("budgetMs", 10 * 60_000L))
+        }
         setContent {
             MaterialTheme(colorScheme = darkColorScheme(primary = WpColors.accent, background = WpColors.bg, surface = WpColors.panel)) {
                 // Test-/Deep-Link-Extras: tab=KARTE|NEWSROOM|ANALYSE, cam=lat,lon,zoom
