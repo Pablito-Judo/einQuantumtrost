@@ -1,0 +1,69 @@
+name: tiles
+
+# Erzeugt die Offline-Kartendaten (Protomaps-Basemap, PMTiles) und legt sie in den Release "tiles-latest".
+# Die WorldPulse-App lädt sie beim ersten Start selbst herunter.
+on:
+  workflow_dispatch:
+    inputs:
+      world_maxzoom:
+        description: "Welt bis Zoom"
+        default: "8"
+      region_maxzoom:
+        description: "Heimatregion bis Zoom"
+        default: "14"
+  push:
+    branches: ["claude/**", "main"]
+    paths: [".github/workflows/tiles.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  tiles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      WORLD_Z: ${{ inputs.world_maxzoom || '8' }}
+      REGION_Z: ${{ inputs.region_maxzoom || '14' }}
+      # Heilbronn (49.142 N, 9.219 E) ± ca. 50 km
+      REGION_BBOX: "8.53,48.69,9.91,49.59"
+    steps:
+      - name: pmtiles-CLI holen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download -R protomaps/go-pmtiles -p '*Linux_x86_64.tar.gz' -O pmtiles.tgz
+          tar xzf pmtiles.tgz pmtiles && ./pmtiles version || true
+      - name: Neuesten Protomaps-Build finden
+        run: |
+          for i in $(seq 0 14); do
+            d=$(date -u -d "-$i day" +%Y%m%d)
+            if curl -sfI "https://build.protomaps.com/$d.pmtiles" >/dev/null; then echo "BUILD=$d" >> $GITHUB_ENV; echo "Build $d"; break; fi
+          done
+      - name: Welt extrahieren
+        run: |
+          test -n "$BUILD"
+          ./pmtiles extract "https://build.protomaps.com/$BUILD.pmtiles" world.pmtiles --maxzoom=$WORLD_Z --download-threads=8
+          ls -la world.pmtiles
+      - name: Heimatregion extrahieren
+        run: |
+          ./pmtiles extract "https://build.protomaps.com/$BUILD.pmtiles" heilbronn.pmtiles --bbox=$REGION_BBOX --maxzoom=$REGION_Z --download-threads=8
+          ls -la heilbronn.pmtiles
+      - name: Manifest
+        run: |
+          python3 - <<'PY'
+          import json, os
+          files = {f: os.path.getsize(f) for f in ["world.pmtiles", "heilbronn.pmtiles"]}
+          json.dump({"build": os.environ["BUILD"], "world_maxzoom": int(os.environ["WORLD_Z"]),
+                     "region_maxzoom": int(os.environ["REGION_Z"]), "region_bbox": os.environ["REGION_BBOX"],
+                     "files": files}, open("tiles.json", "w"), indent=1)
+          print(open("tiles.json").read())
+          PY
+      - name: Release "tiles-latest"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete tiles-latest -R ${{ github.repository }} --yes --cleanup-tag || true
+          gh release create tiles-latest world.pmtiles heilbronn.pmtiles tiles.json -R ${{ github.repository }} \
+            --target "${{ github.sha }}" --prerelease --title "Kartendaten (Protomaps $BUILD)" \
+            --notes "Welt bis z$WORLD_Z, Heilbronn ±50 km bis z$REGION_Z. Quelle: Protomaps-Basemap (OpenStreetMap-Daten, ODbL)."
