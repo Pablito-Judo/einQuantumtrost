@@ -41,6 +41,10 @@ class EventBuilder(private val db: WorldPulseDb) {
         val touched = HashSet<Long>()
         var created = 0
         for (c in pending) {
+            // LLM-Claims erben das Ereignis ihres Artikels (über den Schlagzeilen-Claim)
+            db.claims().eventOfDocument(c.documentId)?.let { ev ->
+                db.claims().assignEvent(listOf(c.id), ev); touched += ev; continue
+            }
             val doc = db.documents().byId(c.documentId) ?: continue
             val title = doc.title ?: c.text
             val geo = placeFor(c, title, doc.text.orEmpty())

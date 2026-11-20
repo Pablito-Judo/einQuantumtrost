@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -124,16 +125,24 @@ fun AnalysisScreen(events: List<UiEventEntity>) {
         }
         // Ticker (SPEC 4): Phase, Artikelzähler, Restzeit, Temperatur, Akku, Abkühlpause
         val latest = events.maxByOrNull { it.time }
+        val st by AnalysisService.status.collectAsStateWithLifecycle()
         Column(Modifier.fillMaxWidth().background(WpColors.panel).padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            val phase = if (st.running) st.phase else if (demo) "Demo" else "bereit"
             Text(
-                "Phase: ${if (demo) "Extraktion (Demo)" else "bereit"} · Ereignisse: ${events.size} · neu: $counter · " +
+                "Phase: $phase · Artikel ${st.done}/${st.total} · Claims ${st.claims} · Ereignisse ${events.size} · " +
                     "Akku ${device.batteryPct} % · ${"%.1f".format(device.tempC)} °C · Thermal ${device.thermal}",
                 color = WpColors.text, fontSize = 12.sp, fontFamily = FontFamily.Monospace,
             )
-            latest?.let { Text("▸ ${it.text}", color = WpColors.accent, fontSize = 12.sp) }
+            st.paused?.let { Text("❄ $it – weiter unter 38 °C", color = Color(0xFF4FA3E0), fontSize = 12.sp) }
+            st.message?.let { Text(it, color = WpColors.accent, fontSize = 12.sp) }
+            (st.lastClaim?.let { "Claim: $it" } ?: latest?.let { "▸ ${it.text}" })?.let { Text(it, color = WpColors.accent, fontSize = 12.sp, maxLines = 2) }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { demo = !demo }) { Text(if (demo) "Demo-Lauf stoppen" else "Demo-Lauf starten") }
+                if (st.running) Button(onClick = { AnalysisService.stop(ctx) }) { Text("Analyse stoppen") }
+                else Button(onClick = { AnalysisService.start(ctx) }) { Text("Analyse starten") }
+                androidx.compose.material3.OutlinedButton(onClick = { demo = !demo }) { Text(if (demo) "Demo aus" else "Demo") }
             }
+            Text("Start nur mit Ladekabel und unter 38 °C · Pause ab 40 °C · lädt einmalig das Sprachmodell (2,5 GB)",
+                color = WpColors.dim, fontSize = 11.sp)
         }
     }
 }

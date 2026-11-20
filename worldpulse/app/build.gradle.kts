@@ -31,13 +31,18 @@ android {
 }
 
 kotlin {
-    compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) }
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        optIn.add("com.google.ai.edge.litertlm.ExperimentalApi")
+    }
 }
 
 dependencies {
     implementation(project(":data"))
     implementation(libs.maplibre.android)
     implementation(libs.androidx.work)
+    implementation(libs.litertlm.android)
+    implementation(libs.androidx.lifecycle.service)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)

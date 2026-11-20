@@ -63,6 +63,9 @@ interface ClaimDao {
     @Query("SELECT * FROM claim WHERE event_id IS NULL ORDER BY created_at LIMIT :limit")
     suspend fun unclustered(limit: Int): List<ClaimEntity>
     @Query("UPDATE claim SET event_id = :eventId WHERE id IN (:ids)") suspend fun assignEvent(ids: List<Long>, eventId: Long)
+    @Query("SELECT event_id FROM claim WHERE document_id = :docId AND event_id IS NOT NULL LIMIT 1")
+    suspend fun eventOfDocument(docId: Long): Long?
+    @Query("SELECT COUNT(*) FROM claim WHERE model != 'headline'") fun observeLlmClaimCount(): Flow<Int>
     /** Belege eines Ereignisses für die Status-Ring-Regel (Echo-Gruppe zählt einfach). */
     @Query("""SELECT COALESCE(d.echo_group, 'doc:' || d.id) AS grp, s.tier AS tier, (c.lat IS NOT NULL) AS hasGeo
               FROM claim c JOIN document d ON d.id = c.document_id JOIN source s ON s.id = d.source_id

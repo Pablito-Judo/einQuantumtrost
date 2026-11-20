@@ -19,6 +19,8 @@ kotlin {
 
 dependencies {
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
+    // suspend-Funktionen im Extraktor (LLM-Aufruf); Tests nutzen runBlocking
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     // S2 Scout: HTML-Bereinigung (deterministisch, ohne JavaScript) und Quellenregister sources.yaml
     api("org.jsoup:jsoup:1.24.1")
     implementation("com.charleskorn.kaml:kaml:0.104.0")
