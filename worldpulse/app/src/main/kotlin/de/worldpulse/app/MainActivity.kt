@@ -1,6 +1,8 @@
 package de.worldpulse.app
 
 import android.os.Bundle
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -40,6 +42,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val app = application as WorldPulseApp
+        // CI/Demo: geprüfte Quellen freigeben + sofort abrufen
+        if (savedInstanceState == null && intent.getBooleanExtra("approveChecked", false)) app.appScope.launch {
+            app.scout.syncRegistry()
+            app.db.sources().observeAll().first().filter { app.scout.note(it.id) == null && !it.sanctioned }
+                .forEach { app.db.sources().setApproved(it.id, true) }
+            de.worldpulse.app.scout.ScoutWorker.runNow(app)
+        }
         setContent {
             MaterialTheme(colorScheme = darkColorScheme(primary = WpColors.accent, background = WpColors.bg, surface = WpColors.panel)) {
                 // Test-/Deep-Link-Extras: tab=KARTE|NEWSROOM|ANALYSE, cam=lat,lon,zoom

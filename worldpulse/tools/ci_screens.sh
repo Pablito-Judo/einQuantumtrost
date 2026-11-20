@@ -26,5 +26,9 @@ shot 3_bawue KARTE 48.9,9.3,7.5
 shot 4_heilbronn KARTE 49.15,9.21,12
 shot 5_newsroom NEWSROOM
 shot 6_analyse ANALYSE
-shot 7_quellen QUELLEN
+# Quellen freigeben + Abruf starten, dann Eingang/Quellen fotografieren
+adb shell am force-stop $PKG
+adb shell am start -n $PKG/.MainActivity --es tab QUELLEN --ez approveChecked true
+sleep 90
+adb exec-out screencap -p > "$OUT/7_quellen.png"
 shot 8_eingang EINGANG

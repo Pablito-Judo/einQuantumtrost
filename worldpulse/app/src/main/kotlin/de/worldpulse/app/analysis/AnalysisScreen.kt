@@ -103,18 +103,19 @@ fun AnalysisScreen(events: List<UiEventEntity>) {
                     val t = System.currentTimeMillis()
                     events.forEach { e ->
                         val lat = e.lat ?: return@forEach; val lon = e.lon ?: return@forEach
-                        val x = ((lon + 180.0) / 360.0 * this.size.width).toFloat()
-                        val y = ((90.0 - lat) / 180.0 * this.size.height).toFloat()
+                        val o = project(lon, lat, this.size.width, this.size.height)
+                        val x = o.x; val y = o.y
                         val look = PinAging.look(t - e.time)
                         val col = Color(SymbolIcons.color(e.symbol))
-                        val r = (if (look.stage == PinStage.PUNKT) 2.5f else 4f) / scale
+                        val dp = density
+                        val r = (if (look.stage == PinStage.PUNKT) 2.5f else 4.5f) * dp / scale
                         if (look.pulse) {
                             val ph = ((sin(frame / 3.0) + 1) / 2).toFloat()
-                            drawCircle(col.copy(alpha = 0.4f * (1 - ph)), radius = (6f + 16f * ph) / scale, center = Offset(x, y))
+                            drawCircle(col.copy(alpha = 0.4f * (1 - ph)), radius = (6f + 16f * ph) * dp / scale, center = Offset(x, y))
                         }
                         drawCircle(col.copy(alpha = look.alpha), radius = r, center = Offset(x, y))
                         if (look.stage == PinStage.NEU || look.stage == PinStage.AKTIV) {
-                            drawCircle(col.copy(alpha = look.alpha * 0.8f), radius = r + 2.5f / scale, center = Offset(x, y), style = Stroke(1f / scale))
+                            drawCircle(col.copy(alpha = look.alpha * 0.8f), radius = r + 2.5f * dp / scale, center = Offset(x, y), style = Stroke(1.2f * dp / scale))
                         }
                     }
                 }
@@ -168,21 +169,35 @@ private fun loadLand(ctx: Context): List<List<Pair<Double, Double>>> {
     return rings
 }
 
+/** Sichtbarer Breitenbereich: ohne Antarktis/Arktis-Leere. */
+private const val LAT_MAX = 84.0
+private const val LAT_MIN = -58.0
+
+/** Lon/Lat -> Pixel im Kartenrechteck (Breite füllt, Höhe nach Seitenverhältnis, vertikal mittig). */
+internal fun project(lon: Double, lat: Double, w: Float, h: Float): Offset {
+    val mapH = w * ((LAT_MAX - LAT_MIN) / 360.0).toFloat()
+    val top = (h - mapH) / 2f
+    val x = ((lon + 180.0) / 360.0 * w).toFloat()
+    val y = top + ((LAT_MAX - lat.coerceIn(LAT_MIN, LAT_MAX)) / (LAT_MAX - LAT_MIN) * mapH).toFloat()
+    return Offset(x, y)
+}
+
 /** Plattkarte (equirektangulär) einmal pro Größe rendern – Bitmap-Cache statt Neuzeichnen je Frame. */
 private fun renderLand(rings: List<List<Pair<Double, Double>>>, w: Int, h: Int): Bitmap {
     val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
     val c = android.graphics.Canvas(bmp)
     c.drawColor(0xFF0B1016.toInt())
     val grid = Paint().apply { color = 0xFF121C26.toInt(); strokeWidth = 1f }
-    for (lon in -180..180 step 30) { val x = ((lon + 180) / 360f) * w; c.drawLine(x, 0f, x, h.toFloat(), grid) }
-    for (lat in -90..90 step 30) { val y = ((90 - lat) / 180f) * h; c.drawLine(0f, y, w.toFloat(), y, grid) }
+    val a = project(-180.0, LAT_MAX, w.toFloat(), h.toFloat()); val b = project(180.0, LAT_MIN, w.toFloat(), h.toFloat())
+    for (lon in -180..180 step 30) { val x = project(lon.toDouble(), 0.0, w.toFloat(), h.toFloat()).x; c.drawLine(x, a.y, x, b.y, grid) }
+    for (lat in -30..60 step 30) { val y = project(0.0, lat.toDouble(), w.toFloat(), h.toFloat()).y; c.drawLine(0f, y, w.toFloat(), y, grid) }
     val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFF16212C.toInt() }
     val edge = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFF2A3A4A.toInt(); style = Paint.Style.STROKE; strokeWidth = 1f }
     rings.forEach { r ->
         val p = Path()
         r.forEachIndexed { i, (lon, lat) ->
-            val x = ((lon + 180.0) / 360.0 * w).toFloat(); val y = ((90.0 - lat) / 180.0 * h).toFloat()
-            if (i == 0) p.moveTo(x, y) else p.lineTo(x, y)
+            val o = project(lon, lat, w.toFloat(), h.toFloat())
+            if (i == 0) p.moveTo(o.x, o.y) else p.lineTo(o.x, o.y)
         }
         p.close(); c.drawPath(p, fill); c.drawPath(p, edge)
     }
