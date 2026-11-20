@@ -104,6 +104,8 @@ class ScoutRepository(private val ctx: Context, private val db: WorldPulseDb) {
                 }
             }
             log(src.id, t0, ok = true, error = "neu=${docs.size} $stats")
+            // Ereignisse sofort nach jeder Quelle bilden -> Pins erscheinen schrittweise
+            if (docs.isNotEmpty()) runCatching { de.worldpulse.app.pipeline.EventBuilder(db).run() }
         }
         // Ereignisse bilden/aktualisieren (ohne LLM) -> echte Pins
         val ev = de.worldpulse.app.pipeline.EventBuilder(db).run()

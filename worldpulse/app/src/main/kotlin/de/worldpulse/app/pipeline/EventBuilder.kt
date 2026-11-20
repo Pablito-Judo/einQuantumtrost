@@ -24,7 +24,12 @@ import kotlinx.coroutines.withContext
  * Wenn LLM-Claims (S4) und Embeddings (S5) dazukommen, laufen sie durch denselben Weg.
  */
 class EventBuilder(private val db: WorldPulseDb) {
-    private val gazetteer by lazy { Gazetteer.bundled() }
+    private val gazetteer get() = sharedGazetteer
+
+    companion object {
+        /** Einmal laden (5.000 Orte), dann für alle Durchgänge teilen. */
+        private val sharedGazetteer by lazy { Gazetteer.bundled() }
+    }
 
     data class Result(val claims: Int, val newEvents: Int, val updatedEvents: Int)
 
