@@ -108,7 +108,8 @@ sources:
     fulltext: false
   - id: gdelt-conflict
     name: GDELT – Konflikte (Stichprobe)
-    url: https://api.gdeltproject.org/api/v2/doc/doc?query=(airstrike%20OR%20shelling%20OR%20drone%20attack)&mode=ArtList&format=json&maxrecords=100&timespan=1h&sort=DateDesc
+    note: "Live-Probe 20.11.: Format bestätigt (100 Artikel), aber unscharf (chinesischer Finanzartikel) – jetzt mit sourcelang:english; Filter am Goldstandard prüfen."
+    url: https://api.gdeltproject.org/api/v2/doc/doc?query=(airstrike%20OR%20shelling%20OR%20%22drone%20attack%22)%20sourcelang:english&mode=ArtList&format=json&maxrecords=100&timespan=1h&sort=DateDesc
     type: GDELT
     tier: B
     interval_min: 60
