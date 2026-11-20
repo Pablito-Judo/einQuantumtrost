@@ -13,7 +13,13 @@ interface SourceDao {
     @Upsert suspend fun upsert(s: SourceEntity)
     @Query("SELECT * FROM source WHERE active = 1 AND approved = 1") suspend fun activeApproved(): List<SourceEntity>
     @Query("SELECT * FROM source WHERE id = :id") suspend fun byId(id: String): SourceEntity?
+    @Query("SELECT * FROM source ORDER BY approved DESC, tier, name") fun observeAll(): Flow<List<SourceEntity>>
+    @Query("UPDATE source SET approved = :approved WHERE id = :id") suspend fun setApproved(id: String, approved: Boolean)
+    @Query("UPDATE source SET etag = :etag, last_modified = :lastModified WHERE id = :id")
+    suspend fun updateFetchState(id: String, etag: String?, lastModified: String?)
 }
+
+data class EchoRow(val grp: String, val simhash: Long)
 
 @Dao
 interface DocumentDao {
@@ -26,6 +32,13 @@ interface DocumentDao {
     /** Haushalt: Rohtext nach Frist entfernen (Claims + Hash + Link bleiben). */
     @Query("UPDATE document SET text = NULL WHERE fetched_at < :before AND text IS NOT NULL")
     suspend fun dropTextsBefore(before: Long): Int
+    @Query("SELECT * FROM document ORDER BY COALESCE(published_at, fetched_at) DESC LIMIT :limit")
+    fun observeRecent(limit: Int): Flow<List<DocumentEntity>>
+    @Query("SELECT url FROM document WHERE fetched_at >= :since") suspend fun urlsSince(since: Long): List<String>
+    @Query("SELECT content_hash FROM document WHERE fetched_at >= :since") suspend fun hashesSince(since: Long): List<String>
+    @Query("SELECT echo_group AS grp, simhash FROM document WHERE fetched_at >= :since AND simhash IS NOT NULL AND echo_group IS NOT NULL")
+    suspend fun echoSince(since: Long): List<EchoRow>
+    @Query("SELECT COUNT(*) FROM document") fun observeCount(): Flow<Int>
     /** Unabhängige Quellen = verschiedene Echo-Gruppen (ohne Gruppe zählt jedes Dokument einzeln). */
     @Query("""SELECT COUNT(DISTINCT COALESCE(d.echo_group, 'doc:' || d.id)) FROM claim c
               JOIN document d ON d.id = c.document_id WHERE c.event_id = :eventId AND c.retracted = 0""")

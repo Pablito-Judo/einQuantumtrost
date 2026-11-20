@@ -37,6 +37,7 @@ kotlin {
 dependencies {
     implementation(project(":data"))
     implementation(libs.maplibre.android)
+    implementation(libs.androidx.work)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)

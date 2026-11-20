@@ -52,7 +52,8 @@ class MainActivity : ComponentActivity() {
 }
 
 internal enum class Tab(val label: String, val sym: Symbol) {
-    KARTE("Karte", Symbol.SONSTIGES), NEWSROOM("Newsroom", Symbol.EVENT), ANALYSE("Analyse", Symbol.ERDBEBEN)
+    KARTE("Karte", Symbol.SONSTIGES), NEWSROOM("Newsroom", Symbol.EVENT), EINGANG("Eingang", Symbol.POLITIK_WAHL),
+    QUELLEN("Quellen", Symbol.PROTEST), ANALYSE("Analyse", Symbol.ERDBEBEN)
 }
 
 @Composable
@@ -80,6 +81,8 @@ private fun Root(app: WorldPulseApp, initialTab: Tab, initialCam: List<Double>?)
                     focus = focus, onFocusConsumed = { focus = null }, banner = banner, initialCam = initialCam,
                 )
                 Tab.NEWSROOM -> NewsroomScreen(events) { e -> focus = e; tab = Tab.KARTE }
+                Tab.EINGANG -> de.worldpulse.app.scout.InboxScreen(app)
+                Tab.QUELLEN -> de.worldpulse.app.scout.SourcesScreen(app)
                 Tab.ANALYSE -> AnalysisScreen(events)
             }
         }

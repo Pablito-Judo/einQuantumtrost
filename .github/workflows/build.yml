@@ -192,6 +192,7 @@ jobs:
             ./gradlew :app:connectedDebugAndroidTest --console=plain || echo "S1_TEST_FAILED"
             adb logcat -d -s S1:I MapLibre:E Mbgl:E AndroidRuntime:E | tail -n 200
             bash tools/ci_screens.sh ../shots || true
+            mkdir -p ../shots/schemas && cp -r data/schemas/. ../shots/schemas/ || true
             adb logcat -d -s AndroidRuntime:E | tail -n 50
       - name: Screenshots in Branch ci-screens
         run: |
