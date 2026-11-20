@@ -63,7 +63,14 @@ interface ClaimDao {
     @Query("SELECT * FROM claim WHERE event_id IS NULL ORDER BY created_at LIMIT :limit")
     suspend fun unclustered(limit: Int): List<ClaimEntity>
     @Query("UPDATE claim SET event_id = :eventId WHERE id IN (:ids)") suspend fun assignEvent(ids: List<Long>, eventId: Long)
+    /** Belege eines Ereignisses für die Status-Ring-Regel (Echo-Gruppe zählt einfach). */
+    @Query("""SELECT COALESCE(d.echo_group, 'doc:' || d.id) AS grp, s.tier AS tier, (c.lat IS NOT NULL) AS hasGeo
+              FROM claim c JOIN document d ON d.id = c.document_id JOIN source s ON s.id = d.source_id
+              WHERE c.event_id = :eventId AND c.retracted = 0""")
+    suspend fun evidence(eventId: Long): List<EvidenceRow>
 }
+
+data class EvidenceRow(val grp: String, val tier: String, val hasGeo: Boolean)
 
 @Dao
 interface EventDao {
@@ -71,6 +78,7 @@ interface EventDao {
     @Query("SELECT * FROM event WHERE id = :id") suspend fun byId(id: Long): EventEntity?
     @Query("SELECT * FROM event WHERE merged_into_id IS NULL AND last_update >= :since ORDER BY last_update DESC")
     suspend fun activeSince(since: Long): List<EventEntity>
+    @androidx.room.Update suspend fun update(e: EventEntity)
     @Query("UPDATE event SET status = :status, last_update = :now WHERE id = :id")
     suspend fun setStatus(id: Long, status: EventStatus, now: Long)
 }
@@ -151,6 +159,10 @@ interface UiEventDao {
     @Query("SELECT * FROM ui_event WHERE time >= :since ORDER BY time DESC") fun observeSince(since: Long): Flow<List<UiEventEntity>>
     @Query("DELETE FROM ui_event WHERE time < :before") suspend fun deleteBefore(before: Long): Int
     @Query("SELECT COUNT(*) FROM ui_event") suspend fun count(): Int
+    @Query("SELECT * FROM ui_event WHERE event_id = :eventId LIMIT 1") suspend fun byEvent(eventId: Long): UiEventEntity?
+    @androidx.room.Update suspend fun update(e: UiEventEntity)
+    /** Demo-Pins entfernen, sobald echte Ereignisse existieren. */
+    @Query("DELETE FROM ui_event WHERE event_id IS NULL AND text LIKE '%(DEMO%'") suspend fun deleteDemo(): Int
     @Insert suspend fun insertAll(e: List<UiEventEntity>)
 }
 

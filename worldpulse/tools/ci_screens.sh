@@ -13,6 +13,11 @@ for i in $(seq 1 120); do
   if adb shell ls /sdcard/Android/data/$PKG/files/tiles/ 2>/dev/null | grep -qx "heilbronn.pmtiles"; then echo "Kartendaten da nach $((i*5)) s"; break; fi
   sleep 5
 done
+# Quellen freigeben + Abruf (echte Meldungen -> Ereignisse -> Pins), bevor die Karte fotografiert wird
+adb shell am force-stop $PKG
+adb shell am start -n $PKG/.MainActivity --es tab QUELLEN --ez approveChecked true
+sleep 120
+adb exec-out screencap -p > "$OUT/7_quellen.png"
 shot() { # name tab [cam]
   adb shell am force-stop $PKG
   if [ -n "${3:-}" ]; then adb shell am start -n $PKG/.MainActivity --es tab "$2" --es cam "$3"; else adb shell am start -n $PKG/.MainActivity --es tab "$2"; fi
@@ -26,9 +31,4 @@ shot 3_bawue KARTE 48.9,9.3,7.5
 shot 4_heilbronn KARTE 49.15,9.21,12
 shot 5_newsroom NEWSROOM
 shot 6_analyse ANALYSE
-# Quellen freigeben + Abruf starten, dann Eingang/Quellen fotografieren
-adb shell am force-stop $PKG
-adb shell am start -n $PKG/.MainActivity --es tab QUELLEN --ez approveChecked true
-sleep 90
-adb exec-out screencap -p > "$OUT/7_quellen.png"
 shot 8_eingang EINGANG

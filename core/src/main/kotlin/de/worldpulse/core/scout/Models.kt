@@ -43,6 +43,9 @@ data class FeedItem(
     val publishedAt: Long?,
     val language: String? = null,
     val guid: String? = null,
+    /** Koordinaten aus dem Feed (georss:point, geo:lat/long) – z. B. USGS, GDACS. */
+    val lat: Double? = null,
+    val lon: Double? = null,
 )
 
 /** Bereinigtes Dokument, bereit für die Dokument-Tabelle (Room: DocumentEntity). */
@@ -58,4 +61,6 @@ data class CleanDocument(
     val simhash: Long,
     val echoGroup: String? = null,
     val paywallStub: Boolean = false,
+    val lat: Double? = null,
+    val lon: Double? = null,
 )

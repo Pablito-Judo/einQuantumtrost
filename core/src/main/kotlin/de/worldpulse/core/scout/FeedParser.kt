@@ -46,7 +46,7 @@ object FeedParser {
                 summary = it.child("description")?.text()?.let(::clean)?.takeIf { s -> s.isNotBlank() },
                 publishedAt = (it.child("pubDate") ?: it.child("date"))?.text()?.let(::parseDate),
                 guid = it.child("guid")?.text(),
-            )
+            ).withCoords(it)
         }
 
     private fun atom(sourceId: String, root: Element): List<FeedItem> =
@@ -62,8 +62,17 @@ object FeedParser {
                 publishedAt = (e.child("published") ?: e.child("updated"))?.text()?.let(::parseDate),
                 language = e.getAttribute("xml:lang").takeIf { it.isNotBlank() },
                 guid = e.child("id")?.text(),
-            )
+            ).withCoords(e)
         }
+
+    /** georss:point "lat lon" oder geo:lat/geo:long (auch verschachtelt, z. B. GDACS geo:Point). */
+    private fun FeedItem.withCoords(el: Element): FeedItem {
+        fun firstText(name: String) = el.descendants(name).firstOrNull()?.text()?.trim()?.takeIf { it.isNotEmpty() }
+        val point = firstText("point")?.split(Regex("[\\s,]+"))?.mapNotNull { it.toDoubleOrNull() }
+        val (la, lo) = if (point != null && point.size >= 2) point[0] to point[1]
+        else (firstText("lat")?.toDoubleOrNull() to (firstText("long") ?: firstText("lon"))?.toDoubleOrNull())
+        return if (la != null && lo != null && la in -90.0..90.0 && lo in -180.0..180.0) copy(lat = la, lon = lo) else this
+    }
 
     /** HTML in Titeln/Beschreibungen entfernen (nur Text behalten). */
     fun clean(s: String?): String = s?.let { Jsoup.parse(it).text().trim() } ?: ""

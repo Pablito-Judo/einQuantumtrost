@@ -8,6 +8,10 @@ import de.worldpulse.core.scout.Scout
 import de.worldpulse.core.scout.SourceDef
 import de.worldpulse.core.scout.SourceRegistry
 import de.worldpulse.core.scout.SourceType
+import de.worldpulse.core.claims.ClaimType
+import de.worldpulse.core.gold.GeoPrecision
+import de.worldpulse.core.gold.SourceTier
+import de.worldpulse.data.db.ClaimEntity
 import de.worldpulse.data.db.DocumentEntity
 import de.worldpulse.data.db.DocumentStatus
 import de.worldpulse.data.db.OwnerType
@@ -82,10 +86,28 @@ class ScoutRepository(private val ctx: Context, private val db: WorldPulseDb) {
                         text = if (def.sanctioned) null else d.text, status = DocumentStatus.BEREINIGT,
                     ),
                 )
-                if (id > 0) { newDocs++; seenUrls += d.url; seenHashes += d.contentHash }
+                if (id > 0) {
+                    newDocs++; seenUrls += d.url; seenHashes += d.contentHash
+                    // Vorläufiger Schlagzeilen-Claim (bis LLM-Extraktion, S4): "Quelle X meldet: <Titel>".
+                    // Messnetze der Stufe A mit eigenen Koordinaten (USGS, GDACS) gelten als Fakt, alles andere als Behauptung.
+                    val measured = src.tier == SourceTier.A && d.lat != null
+                    db.claims().insert(
+                        ClaimEntity(
+                            documentId = id, text = d.title, speaker = src.name,
+                            type = if (measured) ClaimType.FAKT else ClaimType.BEHAUPTUNG,
+                            reportedAt = d.publishedAt ?: d.fetchedAt, lat = d.lat, lon = d.lon,
+                            geoPrecision = if (d.lat != null) GeoPrecision.PUNKT else null,
+                            span = d.title, spanStart = null, spanEnd = null,
+                            model = "headline", promptVersion = "headline-v1", createdAt = System.currentTimeMillis(),
+                        ),
+                    )
+                }
             }
             log(src.id, t0, ok = true, error = "neu=${docs.size} $stats")
         }
+        // Ereignisse bilden/aktualisieren (ohne LLM) -> echte Pins
+        val ev = de.worldpulse.app.pipeline.EventBuilder(db).run()
+        if (ev.claims > 0) log("eventbuilder", System.currentTimeMillis(), ok = true, error = "claims=${ev.claims} neu=${ev.newEvents} aktualisiert=${ev.updatedEvents}")
         RunResult(count, newDocs, errors)
     }
 

@@ -72,7 +72,7 @@ class Scout(
             out += CleanDocument(
                 sourceId = it.sourceId, url = it.url, title = title, text = text, language = lang ?: it.language,
                 publishedAt = it.publishedAt, fetchedAt = clock(), contentHash = hash, simhash = sim,
-                echoGroup = echo.assign(sim, hash),
+                echoGroup = echo.assign(sim, hash), lat = it.lat, lon = it.lon,
             )
             stats.kept++
         }
