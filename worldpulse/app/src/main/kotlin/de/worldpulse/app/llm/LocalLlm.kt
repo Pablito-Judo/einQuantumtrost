@@ -18,8 +18,12 @@ import java.io.File
 class LocalLlm private constructor(private val engine: Engine, val backendName: String, val modelName: String) : AutoCloseable {
 
     companion object {
-        /** GPU zuerst; wenn das scheitert (z. B. Emulator), CPU. */
-        fun load(ctx: Context, model: File, preferGpu: Boolean = true): LocalLlm {
+        /** Emulator (CI): GPU-Pfad hängt dort (Software-GPU) – direkt CPU. Auf dem S23 GPU (gemessen). */
+        val isEmulator: Boolean get() = android.os.Build.HARDWARE.contains("ranchu") || android.os.Build.FINGERPRINT.startsWith("generic") ||
+            android.os.Build.PRODUCT.contains("sdk_gphone")
+
+        /** GPU zuerst; wenn das scheitert, CPU. */
+        fun load(ctx: Context, model: File, preferGpu: Boolean = !isEmulator): LocalLlm {
             ExperimentalFlags.enableBenchmark = true
             val order = if (preferGpu) listOf("GPU", "CPU") else listOf("CPU")
             var last: Throwable? = null
