@@ -1,0 +1,666 @@
+{
+ "version": 1,
+ "description": "S0-Test 6/7: 20 synthetische Kurzmeldungen (DE/EN/RU-übersetzt) mit handgeschriebenen Soll-Claims; Ereignisse frei erfunden.",
+ "articles": [
+  {
+   "id": "de01",
+   "language": "de",
+   "synthetic": true,
+   "text": "Bei einem Großbrand in einer Lagerhalle im Heilbronner Industriegebiet sind am Dienstagabend zwei Feuerwehrleute leicht verletzt worden. Nach Angaben der Polizei entstand ein Schaden von rund 1,5 Millionen Euro. Die Brandursache ist noch unklar, die Kriminalpolizei ermittelt.",
+   "expected": [
+    {
+     "id": "de01-c1",
+     "text": "In einer Lagerhalle im Heilbronner Industriegebiet brannte es am Dienstagabend",
+     "speaker": "Polizei",
+     "type": "FAKT",
+     "span": "einem Großbrand in einer Lagerhalle im Heilbronner Industriegebiet"
+    },
+    {
+     "id": "de01-c2",
+     "text": "Zwei Feuerwehrleute wurden leicht verletzt",
+     "speaker": "Polizei",
+     "type": "FAKT",
+     "span": "zwei Feuerwehrleute leicht verletzt worden"
+    },
+    {
+     "id": "de01-c3",
+     "text": "Der Schaden beträgt rund 1,5 Millionen Euro",
+     "speaker": "Polizei",
+     "type": "FAKT",
+     "span": "ein Schaden von rund 1,5 Millionen Euro"
+    },
+    {
+     "id": "de01-c4",
+     "text": "Die Brandursache ist unklar, die Kriminalpolizei ermittelt",
+     "speaker": "Polizei",
+     "type": "FAKT",
+     "span": "Die Brandursache ist noch unklar, die Kriminalpolizei ermittelt"
+    }
+   ]
+  },
+  {
+   "id": "de02",
+   "language": "de",
+   "synthetic": true,
+   "text": "Der Gemeinderat von Neckarsulm hat am Mittwoch mit 18 zu 9 Stimmen den Bau einer neuen Grundschule beschlossen. Die Kosten werden auf 24 Millionen Euro geschätzt. Bürgermeister Klaus Brenner nannte die Entscheidung \"überfällig\". Die Fraktion der Freien Wähler kritisierte, die Finanzierung sei nicht gesichert.",
+   "expected": [
+    {
+     "id": "de02-c1",
+     "text": "Der Gemeinderat von Neckarsulm beschloss mit 18 zu 9 Stimmen den Bau einer neuen Grundschule",
+     "speaker": "Artikel",
+     "type": "FAKT",
+     "span": "mit 18 zu 9 Stimmen den Bau einer neuen Grundschule beschlossen"
+    },
+    {
+     "id": "de02-c2",
+     "text": "Die Kosten werden auf 24 Millionen Euro geschätzt",
+     "speaker": "Artikel",
+     "type": "FAKT",
+     "span": "Die Kosten werden auf 24 Millionen Euro geschätzt"
+    },
+    {
+     "id": "de02-c3",
+     "text": "Bürgermeister Klaus Brenner nannte die Entscheidung überfällig",
+     "speaker": "Klaus Brenner",
+     "type": "ZITAT",
+     "span": "nannte die Entscheidung \"überfällig\""
+    },
+    {
+     "id": "de02-c4",
+     "text": "Die Finanzierung sei nicht gesichert",
+     "speaker": "Freie Wähler",
+     "type": "BEHAUPTUNG",
+     "span": "die Finanzierung sei nicht gesichert"
+    }
+   ]
+  },
+  {
+   "id": "de03",
+   "language": "de",
+   "synthetic": true,
+   "text": "Das Statistische Landesamt meldet für Oktober eine Inflationsrate von 2,4 Prozent in Baden-Württemberg. Im September hatte sie bei 2,1 Prozent gelegen. Besonders stark stiegen die Preise für Nahrungsmittel mit einem Plus von 4,8 Prozent.",
+   "expected": [
+    {
+     "id": "de03-c1",
+     "text": "Die Inflationsrate in Baden-Württemberg lag im Oktober bei 2,4 Prozent",
+     "speaker": "Statistisches Landesamt",
+     "type": "FAKT",
+     "span": "eine Inflationsrate von 2,4 Prozent in Baden-Württemberg"
+    },
+    {
+     "id": "de03-c2",
+     "text": "Im September lag die Inflationsrate bei 2,1 Prozent",
+     "speaker": "Statistisches Landesamt",
+     "type": "FAKT",
+     "span": "Im September hatte sie bei 2,1 Prozent gelegen"
+    },
+    {
+     "id": "de03-c3",
+     "text": "Nahrungsmittelpreise stiegen um 4,8 Prozent",
+     "speaker": "Statistisches Landesamt",
+     "type": "FAKT",
+     "span": "Preise für Nahrungsmittel mit einem Plus von 4,8 Prozent"
+    }
+   ]
+  },
+  {
+   "id": "de04",
+   "language": "de",
+   "synthetic": true,
+   "text": "Auf der A6 zwischen Heilbronn und Sinsheim ist es am Freitagmorgen zu einem Unfall mit drei Lastwagen gekommen. Ein Fahrer wurde schwer verletzt und mit einem Rettungshubschrauber in eine Klinik gebracht. Die Autobahn war in Richtung Mannheim für etwa vier Stunden gesperrt.",
+   "expected": [
+    {
+     "id": "de04-c1",
+     "text": "Auf der A6 zwischen Heilbronn und Sinsheim verunglückten am Freitagmorgen drei Lastwagen",
+     "speaker": "Artikel",
+     "type": "FAKT",
+     "span": "Auf der A6 zwischen Heilbronn und Sinsheim ist es am Freitagmorgen zu einem Unfall mit drei Lastwagen gekommen"
+    },
+    {
+     "id": "de04-c2",
+     "text": "Ein Fahrer wurde schwer verletzt und per Rettungshubschrauber in eine Klinik gebracht",
+     "speaker": "Artikel",
+     "type": "FAKT",
+     "span": "Ein Fahrer wurde schwer verletzt und mit einem Rettungshubschrauber in eine Klinik gebracht"
+    },
+    {
+     "id": "de04-c3",
+     "text": "Die A6 war Richtung Mannheim etwa vier Stunden gesperrt",
+     "speaker": "Artikel",
+     "type": "FAKT",
+     "span": "in Richtung Mannheim für etwa vier Stunden gesperrt"
+    }
+   ]
+  },
+  {
+   "id": "de05",
+   "language": "de",
+   "synthetic": true,
+   "text": "Das Bundesverteidigungsministerium hat bestätigt, dass weitere 12 Schützenpanzer an die Ukraine geliefert wurden. Ein Sprecher sagte, die Lieferung sei bereits in der vergangenen Woche erfolgt. Russland bezeichnete die Lieferung als \"Eskalation\". Angaben zum genauen Typ machte das Ministerium nicht.",
+   "expected": [
+    {
+     "id": "de05-c1",
+     "text": "Weitere 12 Schützenpanzer wurden an die Ukraine geliefert",
+     "speaker": "Bundesverteidigungsministerium",
+     "type": "FAKT",
+     "span": "weitere 12 Schützenpanzer an die Ukraine geliefert wurden"
+    },
+    {
+     "id": "de05-c2",
+     "text": "Die Lieferung erfolgte in der vergangenen Woche",
+     "speaker": "Sprecher des Ministeriums",
+     "type": "BEHAUPTUNG",
+     "span": "die Lieferung sei bereits in der vergangenen Woche erfolgt"
+    },
+    {
+     "id": "de05-c3",
+     "text": "Russland bezeichnete die Lieferung als Eskalation",
+     "speaker": "Russland",
+     "type": "MEINUNG",
+     "span": "Russland bezeichnete die Lieferung als \"Eskalation\""
+    },
+    {
+     "id": "de05-c4",
+     "text": "Das Ministerium machte keine Angaben zum genauen Typ",
+     "speaker": "Artikel",
+     "type": "FAKT",
+     "span": "Angaben zum genauen Typ machte das Ministerium nicht"
+    }
+   ]
+  },
+  {
+   "id": "de06",
+   "language": "de",
+   "synthetic": true,
+   "text": "Nach tagelangem Regen hat der Neckar in Bad Wimpfen einen Pegelstand von 5,9 Metern erreicht. Die Hochwasservorhersagezentrale rechnet bis Sonntag mit einem weiteren Anstieg auf bis zu 6,3 Meter. Die Stadt hat die Uferstraße gesperrt und Sandsäcke ausgegeben.",
+   "expected": [
+    {
+     "id": "de06-c1",
+     "text": "Der Neckar erreichte in Bad Wimpfen einen Pegelstand von 5,9 Metern",
+     "speaker": "Artikel",
+     "type": "FAKT",
+     "span": "hat der Neckar in Bad Wimpfen einen Pegelstand von 5,9 Metern erreicht"
+    },
+    {
+     "id": "de06-c2",
+     "text": "Bis Sonntag wird ein Anstieg auf bis zu 6,3 Meter erwartet",
+     "speaker": "Hochwasservorhersagezentrale",
+     "type": "BEHAUPTUNG",
+     "span": "rechnet bis Sonntag mit einem weiteren Anstieg auf bis zu 6,3 Meter"
+    },
+    {
+     "id": "de06-c3",
+     "text": "Die Stadt sperrte die Uferstraße",
+     "speaker": "Stadt Bad Wimpfen",
+     "type": "FAKT",
+     "span": "Die Stadt hat die Uferstraße gesperrt"
+    },
+    {
+     "id": "de06-c4",
+     "text": "Die Stadt gab Sandsäcke aus",
+     "speaker": "Stadt Bad Wimpfen",
+     "type": "FAKT",
+     "span": "Sandsäcke ausgegeben"
+    }
+   ]
+  },
+  {
+   "id": "de07",
+   "language": "de",
+   "synthetic": true,
+   "text": "Die Gewerkschaft Verdi hat für Montag zu einem ganztägigen Warnstreik im Nahverkehr in Stuttgart aufgerufen. Betroffen sind nach Angaben der Gewerkschaft rund 2.300 Beschäftigte. Der Arbeitgeberverband nannte den Streik \"unverhältnismäßig\" und verwies auf ein bereits vorgelegtes Angebot von 5 Prozent mehr Lohn.",
+   "expected": [
+    {
+     "id": "de07-c1",
+     "text": "Verdi rief für Montag zu einem ganztägigen Warnstreik im Stuttgarter Nahverkehr auf",
+     "speaker": "Verdi",
+     "type": "FAKT",
+     "span": "zu einem ganztägigen Warnstreik im Nahverkehr in Stuttgart aufgerufen"
+    },
+    {
+     "id": "de07-c2",
+     "text": "Rund 2.300 Beschäftigte sind betroffen",
+     "speaker": "Verdi",
+     "type": "BEHAUPTUNG",
+     "span": "rund 2.300 Beschäftigte"
+    },
+    {
+     "id": "de07-c3",
+     "text": "Der Arbeitgeberverband nannte den Streik unverhältnismäßig",
+     "speaker": "Arbeitgeberverband",
+     "type": "MEINUNG",
+     "span": "nannte den Streik \"unverhältnismäßig\""
+    },
+    {
+     "id": "de07-c4",
+     "text": "Die Arbeitgeber haben 5 Prozent mehr Lohn angeboten",
+     "speaker": "Arbeitgeberverband",
+     "type": "BEHAUPTUNG",
+     "span": "ein bereits vorgelegtes Angebot von 5 Prozent mehr Lohn"
+    }
+   ]
+  },
+  {
+   "id": "de08",
+   "language": "de",
+   "synthetic": true,
+   "text": "Ein Erdbeben der Stärke 3,1 ist in der Nacht zu Donnerstag auf der Schwäbischen Alb registriert worden. Das Epizentrum lag nach Angaben des Landeserdbebendienstes nahe Albstadt in etwa 8 Kilometern Tiefe. Berichte über Schäden lagen zunächst nicht vor.",
+   "expected": [
+    {
+     "id": "de08-c1",
+     "text": "Auf der Schwäbischen Alb wurde ein Erdbeben der Stärke 3,1 registriert",
+     "speaker": "Landeserdbebendienst",
+     "type": "FAKT",
+     "span": "Ein Erdbeben der Stärke 3,1 ist in der Nacht zu Donnerstag auf der Schwäbischen Alb registriert worden"
+    },
+    {
+     "id": "de08-c2",
+     "text": "Das Epizentrum lag nahe Albstadt in etwa 8 Kilometern Tiefe",
+     "speaker": "Landeserdbebendienst",
+     "type": "FAKT",
+     "span": "nahe Albstadt in etwa 8 Kilometern Tiefe"
+    },
+    {
+     "id": "de08-c3",
+     "text": "Schäden wurden zunächst nicht gemeldet",
+     "speaker": "Artikel",
+     "type": "FAKT",
+     "span": "Berichte über Schäden lagen zunächst nicht vor"
+    }
+   ]
+  },
+  {
+   "id": "en01",
+   "language": "en",
+   "synthetic": true,
+   "text": "The U.S. Geological Survey said a magnitude 6.2 earthquake struck off the coast of northern Chile on Saturday at a depth of 35 kilometers. Local authorities reported no immediate casualties. The Chilean navy said there was no tsunami threat.",
+   "expected": [
+    {
+     "id": "en01-c1",
+     "text": "A magnitude 6.2 earthquake struck off northern Chile on Saturday",
+     "speaker": "U.S. Geological Survey",
+     "type": "FAKT",
+     "span": "a magnitude 6.2 earthquake struck off the coast of northern Chile on Saturday"
+    },
+    {
+     "id": "en01-c2",
+     "text": "The quake was at a depth of 35 kilometers",
+     "speaker": "U.S. Geological Survey",
+     "type": "FAKT",
+     "span": "at a depth of 35 kilometers"
+    },
+    {
+     "id": "en01-c3",
+     "text": "No immediate casualties were reported",
+     "speaker": "Local authorities",
+     "type": "FAKT",
+     "span": "Local authorities reported no immediate casualties"
+    },
+    {
+     "id": "en01-c4",
+     "text": "There was no tsunami threat",
+     "speaker": "Chilean navy",
+     "type": "BEHAUPTUNG",
+     "span": "there was no tsunami threat"
+    }
+   ]
+  },
+  {
+   "id": "en02",
+   "language": "en",
+   "synthetic": true,
+   "text": "Protesters gathered outside parliament in Tbilisi for a third consecutive night, with organizers claiming more than 20,000 participants. Police said about 8,000 people attended and that 14 people were detained. The interior ministry accused opposition parties of organizing the rallies.",
+   "expected": [
+    {
+     "id": "en02-c1",
+     "text": "Protesters gathered outside parliament in Tbilisi for a third consecutive night",
+     "speaker": "Article",
+     "type": "FAKT",
+     "span": "Protesters gathered outside parliament in Tbilisi for a third consecutive night"
+    },
+    {
+     "id": "en02-c2",
+     "text": "More than 20,000 people participated",
+     "speaker": "Organizers",
+     "type": "BEHAUPTUNG",
+     "span": "organizers claiming more than 20,000 participants"
+    },
+    {
+     "id": "en02-c3",
+     "text": "About 8,000 people attended",
+     "speaker": "Police",
+     "type": "BEHAUPTUNG",
+     "span": "Police said about 8,000 people attended"
+    },
+    {
+     "id": "en02-c4",
+     "text": "14 people were detained",
+     "speaker": "Police",
+     "type": "FAKT",
+     "span": "14 people were detained"
+    },
+    {
+     "id": "en02-c5",
+     "text": "Opposition parties organized the rallies",
+     "speaker": "Interior ministry",
+     "type": "BEHAUPTUNG",
+     "span": "accused opposition parties of organizing the rallies"
+    }
+   ]
+  },
+  {
+   "id": "en03",
+   "language": "en",
+   "synthetic": true,
+   "text": "The World Health Organization said on Monday that a cholera outbreak in the region has infected at least 3,400 people since August. At least 61 deaths have been recorded. A WHO spokesperson said vaccination campaigns would begin next week in the most affected districts.",
+   "expected": [
+    {
+     "id": "en03-c1",
+     "text": "A cholera outbreak has infected at least 3,400 people since August",
+     "speaker": "World Health Organization",
+     "type": "FAKT",
+     "span": "a cholera outbreak in the region has infected at least 3,400 people since August"
+    },
+    {
+     "id": "en03-c2",
+     "text": "At least 61 deaths have been recorded",
+     "speaker": "World Health Organization",
+     "type": "FAKT",
+     "span": "At least 61 deaths have been recorded"
+    },
+    {
+     "id": "en03-c3",
+     "text": "Vaccination campaigns will begin next week in the most affected districts",
+     "speaker": "WHO spokesperson",
+     "type": "BEHAUPTUNG",
+     "span": "vaccination campaigns would begin next week in the most affected districts"
+    }
+   ]
+  },
+  {
+   "id": "en04",
+   "language": "en",
+   "synthetic": true,
+   "text": "Firefighters in southern California were battling a wildfire that has burned more than 4,500 hectares, officials said on Wednesday. The blaze was 15 percent contained. About 1,200 residents were ordered to evacuate. \"Conditions remain extremely dangerous,\" the county fire chief said.",
+   "expected": [
+    {
+     "id": "en04-c1",
+     "text": "A wildfire in southern California has burned more than 4,500 hectares",
+     "speaker": "Officials",
+     "type": "FAKT",
+     "span": "a wildfire that has burned more than 4,500 hectares"
+    },
+    {
+     "id": "en04-c2",
+     "text": "The fire was 15 percent contained",
+     "speaker": "Officials",
+     "type": "FAKT",
+     "span": "The blaze was 15 percent contained"
+    },
+    {
+     "id": "en04-c3",
+     "text": "About 1,200 residents were ordered to evacuate",
+     "speaker": "Officials",
+     "type": "FAKT",
+     "span": "About 1,200 residents were ordered to evacuate"
+    },
+    {
+     "id": "en04-c4",
+     "text": "Conditions remain extremely dangerous",
+     "speaker": "County fire chief",
+     "type": "ZITAT",
+     "span": "\"Conditions remain extremely dangerous,\" the county fire chief said"
+    }
+   ]
+  },
+  {
+   "id": "en05",
+   "language": "en",
+   "synthetic": true,
+   "text": "The central bank raised its key interest rate by 0.25 percentage points to 4.5 percent on Thursday, its third increase this year. The governor said inflation remained \"too high\". Analysts had expected the move.",
+   "expected": [
+    {
+     "id": "en05-c1",
+     "text": "The central bank raised its key interest rate by 0.25 percentage points to 4.5 percent",
+     "speaker": "Article",
+     "type": "FAKT",
+     "span": "raised its key interest rate by 0.25 percentage points to 4.5 percent"
+    },
+    {
+     "id": "en05-c2",
+     "text": "It was the third increase this year",
+     "speaker": "Article",
+     "type": "FAKT",
+     "span": "its third increase this year"
+    },
+    {
+     "id": "en05-c3",
+     "text": "Inflation remained too high",
+     "speaker": "Governor",
+     "type": "MEINUNG",
+     "span": "inflation remained \"too high\""
+    },
+    {
+     "id": "en05-c4",
+     "text": "Analysts had expected the move",
+     "speaker": "Article",
+     "type": "FAKT",
+     "span": "Analysts had expected the move"
+    }
+   ]
+  },
+  {
+   "id": "en06",
+   "language": "en",
+   "synthetic": true,
+   "text": "A drone strike hit a fuel depot near the port city on Tuesday night, the regional governor said, adding that a fire broke out but no one was injured. The defense ministry of the neighboring country said it had intercepted 27 drones overnight. Neither claim could be independently verified.",
+   "expected": [
+    {
+     "id": "en06-c1",
+     "text": "A drone strike hit a fuel depot near the port city on Tuesday night",
+     "speaker": "Regional governor",
+     "type": "BEHAUPTUNG",
+     "span": "A drone strike hit a fuel depot near the port city on Tuesday night"
+    },
+    {
+     "id": "en06-c2",
+     "text": "A fire broke out but no one was injured",
+     "speaker": "Regional governor",
+     "type": "BEHAUPTUNG",
+     "span": "a fire broke out but no one was injured"
+    },
+    {
+     "id": "en06-c3",
+     "text": "27 drones were intercepted overnight",
+     "speaker": "Defense ministry of the neighboring country",
+     "type": "BEHAUPTUNG",
+     "span": "it had intercepted 27 drones overnight"
+    },
+    {
+     "id": "en06-c4",
+     "text": "Neither claim could be independently verified",
+     "speaker": "Article",
+     "type": "FAKT",
+     "span": "Neither claim could be independently verified"
+    }
+   ]
+  },
+  {
+   "id": "en07",
+   "language": "en",
+   "synthetic": true,
+   "text": "The European Commission proposed on Wednesday to cut the bloc's emissions by 90 percent by 2040 compared with 1990 levels. Environmental groups called the target insufficient, while several member states warned it could harm industry.",
+   "expected": [
+    {
+     "id": "en07-c1",
+     "text": "The European Commission proposed cutting emissions by 90 percent by 2040 compared with 1990",
+     "speaker": "European Commission",
+     "type": "FAKT",
+     "span": "cut the bloc's emissions by 90 percent by 2040 compared with 1990 levels"
+    },
+    {
+     "id": "en07-c2",
+     "text": "The target is insufficient",
+     "speaker": "Environmental groups",
+     "type": "MEINUNG",
+     "span": "Environmental groups called the target insufficient"
+    },
+    {
+     "id": "en07-c3",
+     "text": "The target could harm industry",
+     "speaker": "Several member states",
+     "type": "BEHAUPTUNG",
+     "span": "several member states warned it could harm industry"
+    }
+   ]
+  },
+  {
+   "id": "ru01",
+   "language": "de",
+   "synthetic": true,
+   "text": "Das russische Verteidigungsministerium erklärte, die Luftabwehr habe in der Nacht 41 ukrainische Drohnen über der Region Belgorod abgeschossen. Gouverneur Gladkow teilte mit, in einem Dorf sei ein Wohnhaus beschädigt worden. Opfer habe es nicht gegeben.",
+   "expected": [
+    {
+     "id": "ru01-c1",
+     "text": "Die Luftabwehr schoss in der Nacht 41 ukrainische Drohnen über der Region Belgorod ab",
+     "speaker": "Russisches Verteidigungsministerium",
+     "type": "BEHAUPTUNG",
+     "span": "die Luftabwehr habe in der Nacht 41 ukrainische Drohnen über der Region Belgorod abgeschossen"
+    },
+    {
+     "id": "ru01-c2",
+     "text": "In einem Dorf wurde ein Wohnhaus beschädigt",
+     "speaker": "Gouverneur Gladkow",
+     "type": "BEHAUPTUNG",
+     "span": "in einem Dorf sei ein Wohnhaus beschädigt worden"
+    },
+    {
+     "id": "ru01-c3",
+     "text": "Es gab keine Opfer",
+     "speaker": "Gouverneur Gladkow",
+     "type": "BEHAUPTUNG",
+     "span": "Opfer habe es nicht gegeben"
+    }
+   ],
+   "translated_from": "ru",
+   "original": "Министерство обороны России заявило, что ночью ПВО сбили 41 украинский беспилотник над Белгородской областью. Губернатор Гладков сообщил, что в одном из сёл повреждён жилой дом. Пострадавших нет."
+  },
+  {
+   "id": "ru02",
+   "language": "en",
+   "synthetic": true,
+   "text": "The Russian state news agency TASS reported that the government approved a budget with defense spending of 13.5 trillion rubles for next year. Finance Minister Siluanov said the deficit would stay below 1 percent of GDP.",
+   "expected": [
+    {
+     "id": "ru02-c1",
+     "text": "The government approved a budget with defense spending of 13.5 trillion rubles for next year",
+     "speaker": "TASS",
+     "type": "BEHAUPTUNG",
+     "span": "the government approved a budget with defense spending of 13.5 trillion rubles for next year"
+    },
+    {
+     "id": "ru02-c2",
+     "text": "The deficit will stay below 1 percent of GDP",
+     "speaker": "Finance Minister Siluanov",
+     "type": "BEHAUPTUNG",
+     "span": "the deficit would stay below 1 percent of GDP"
+    }
+   ],
+   "translated_from": "ru",
+   "original": "Государственное агентство ТАСС сообщило, что правительство утвердило бюджет с расходами на оборону в размере 13,5 трлн рублей на следующий год. Министр финансов Силуанов заявил, что дефицит останется ниже 1% ВВП."
+  },
+  {
+   "id": "ru03",
+   "language": "de",
+   "synthetic": true,
+   "text": "Laut der Zeitung Kommersant wurden in Moskau 3 Mitarbeiter eines Rüstungsbetriebs wegen Bestechung festgenommen. Ein Gericht ordnete Untersuchungshaft für zwei Monate an. Der Betrieb selbst äußerte sich nicht.",
+   "expected": [
+    {
+     "id": "ru03-c1",
+     "text": "In Moskau wurden 3 Mitarbeiter eines Rüstungsbetriebs wegen Bestechung festgenommen",
+     "speaker": "Kommersant",
+     "type": "FAKT",
+     "span": "in Moskau 3 Mitarbeiter eines Rüstungsbetriebs wegen Bestechung festgenommen"
+    },
+    {
+     "id": "ru03-c2",
+     "text": "Ein Gericht ordnete zwei Monate Untersuchungshaft an",
+     "speaker": "Kommersant",
+     "type": "FAKT",
+     "span": "Ein Gericht ordnete Untersuchungshaft für zwei Monate an"
+    },
+    {
+     "id": "ru03-c3",
+     "text": "Der Betrieb äußerte sich nicht",
+     "speaker": "Artikel",
+     "type": "FAKT",
+     "span": "Der Betrieb selbst äußerte sich nicht"
+    }
+   ],
+   "translated_from": "ru",
+   "original": "По данным газеты «Коммерсантъ», в Москве задержаны трое сотрудников оборонного предприятия по делу о взятке. Суд арестовал их на два месяца. Само предприятие ситуацию не комментирует."
+  },
+  {
+   "id": "ru04",
+   "language": "en",
+   "synthetic": true,
+   "text": "Kremlin spokesman Dmitry Peskov said Moscow was \"open to dialogue\" but that Western sanctions made talks \"impossible in the current form\". He did not say whether a meeting between the foreign ministers was planned.",
+   "expected": [
+    {
+     "id": "ru04-c1",
+     "text": "Moscow is open to dialogue",
+     "speaker": "Dmitry Peskov",
+     "type": "ZITAT",
+     "span": "Moscow was \"open to dialogue\""
+    },
+    {
+     "id": "ru04-c2",
+     "text": "Western sanctions make talks impossible in the current form",
+     "speaker": "Dmitry Peskov",
+     "type": "MEINUNG",
+     "span": "Western sanctions made talks \"impossible in the current form\""
+    },
+    {
+     "id": "ru04-c3",
+     "text": "Peskov did not say whether a foreign ministers' meeting was planned",
+     "speaker": "Article",
+     "type": "FAKT",
+     "span": "He did not say whether a meeting between the foreign ministers was planned"
+    }
+   ],
+   "translated_from": "ru",
+   "original": "Пресс-секретарь Кремля Дмитрий Песков заявил, что Москва «открыта к диалогу», однако западные санкции делают переговоры «невозможными в нынешнем формате». Он не уточнил, планируется ли встреча министров иностранных дел."
+  },
+  {
+   "id": "ru05",
+   "language": "de",
+   "synthetic": true,
+   "text": "Nach Angaben des russischen Katastrophenschutzministeriums brach in einem Einkaufszentrum in Samara ein Feuer auf einer Fläche von 2.000 Quadratmetern aus. 150 Menschen wurden in Sicherheit gebracht. Nach vorläufigen Informationen war ein Kurzschluss die Ursache.",
+   "expected": [
+    {
+     "id": "ru05-c1",
+     "text": "In einem Einkaufszentrum in Samara brach ein Feuer auf 2.000 Quadratmetern aus",
+     "speaker": "Russisches Katastrophenschutzministerium",
+     "type": "FAKT",
+     "span": "in einem Einkaufszentrum in Samara ein Feuer auf einer Fläche von 2.000 Quadratmetern aus"
+    },
+    {
+     "id": "ru05-c2",
+     "text": "150 Menschen wurden in Sicherheit gebracht",
+     "speaker": "Russisches Katastrophenschutzministerium",
+     "type": "FAKT",
+     "span": "150 Menschen wurden in Sicherheit gebracht"
+    },
+    {
+     "id": "ru05-c3",
+     "text": "Ursache war vermutlich ein Kurzschluss",
+     "speaker": "Russisches Katastrophenschutzministerium",
+     "type": "BEHAUPTUNG",
+     "span": "Nach vorläufigen Informationen war ein Kurzschluss die Ursache"
+    }
+   ],
+   "translated_from": "ru",
+   "original": "По данным МЧС России, в торговом центре в Самаре произошёл пожар на площади 2000 квадратных метров. Эвакуированы 150 человек. По предварительной информации, причиной стало короткое замыкание."
+  }
+ ]
+}

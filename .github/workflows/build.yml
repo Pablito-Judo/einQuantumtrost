@@ -1,0 +1,197 @@
+name: build
+
+on:
+  push:
+    branches: ["claude/**", "main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Referenzdaten (CAMEO 14/18/19/20) ins Log
+        continue-on-error: true
+        run: curl -sf https://www.gdeltproject.org/data/lookups/CAMEO.eventcodes.txt | grep -E "^(14|18|19|20)" || echo "CAMEO-Liste nicht abrufbar"
+
+      - name: core – JVM-Tests
+        working-directory: core
+        run: ./gradlew test --console=plain
+
+      - name: Live-Probe der Quellen (RSS/Atom/GDELT)
+        continue-on-error: true
+        working-directory: core
+        run: ./gradlew liveProbe --console=plain -q 2>&1 | grep PROBE || true
+
+      - name: GDELT-Format (Rohantwort, Ausschnitt)
+        continue-on-error: true
+        run: |
+          sleep 20 # GDELT drosselt (HTTP 429) – Abstand zur Live-Probe
+          curl -s -w "\nHTTP %{http_code}\n" "https://api.gdeltproject.org/api/v2/doc/doc?query=Heilbronn&mode=ArtList&format=json&maxrecords=2&timespan=3d" | head -c 1500
+
+      - name: bench – Release-APK
+        working-directory: bench
+        run: ./gradlew :app:assembleRelease --console=plain
+
+      - name: worldpulse/data – Unit-Tests + Test-APK
+        working-directory: worldpulse
+        run: ./gradlew :data:testDebugUnitTest :data:assembleDebugAndroidTest :app:assembleRelease --console=plain
+
+      - name: APK sammeln
+        run: |
+          mkdir -p out
+          cp bench/app/build/outputs/apk/release/*.apk out/wp-bench.apk
+          cp worldpulse/app/build/outputs/apk/release/*.apk out/worldpulse.apk
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wp-bench-apk
+          path: out/*.apk
+
+      - name: Room-Schema sichern
+        uses: actions/upload-artifact@v4
+        with:
+          name: room-schemas
+          path: worldpulse/data/schemas/
+
+      - name: Release "bench-latest" aktualisieren
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete bench-latest --yes --cleanup-tag || true
+          gh release create bench-latest out/wp-bench.apk \
+            --target "${{ github.sha }}" --prerelease \
+            --title "WP Bench (neuester Build)" \
+            --notes "Automatischer Build aus ${{ github.ref_name }} @ ${{ github.sha }}. Auf dem S23 öffnen und installieren."
+          gh release delete worldpulse-latest --yes --cleanup-tag || true
+          gh release create worldpulse-latest out/worldpulse.apk \
+            --target "${{ github.sha }}" --prerelease \
+            --title "WorldPulse S1-Prototyp (neuester Build)" \
+            --notes "Karte (MapLibre, Offline-Kacheln), Newsroom, Analyse-Ansicht mit Demo-Daten. Lädt beim ersten Start ca. 670 MB Kartendaten (WLAN)."
+
+  room-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: KVM aktivieren
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Room-Tests auf Emulator (API 34)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          working-directory: worldpulse
+          # Erst Schema erzeugen (KSP), dann Tests – sonst fehlt schemas/…/1.json in den Test-Assets.
+          script: ./gradlew :data:kspDebugKotlin --console=plain && ./gradlew :data:connectedDebugAndroidTest --console=plain && cat data/schemas/de.worldpulse.data.db.WorldPulseDb/1.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: room-test-report
+          path: worldpulse/data/build/reports/androidTests/
+
+  smoke-e2e:
+    # Echter Lauf im Emulator (x86_64, CPU): HF-Download + LiteRT-LM + Extraktion + Embedding.
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: KVM aktivieren
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Test-APKs bauen
+        working-directory: bench
+        run: ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --console=plain
+      - name: Smoke-Test im Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          ram-size: 8192M
+          disk-size: 16G
+          cores: 4
+          disable-animations: true
+          working-directory: bench
+          script: |
+            adb logcat -c || true
+            ./gradlew :app:connectedDebugAndroidTest --console=plain || echo "SMOKE_FAILED"
+            adb logcat -d -s SMOKE:I WPBench:I AndroidRuntime:E | tail -n 300
+
+  app-s1:
+    # WorldPulse-App im Emulator: echte Kartendaten laden, Rendering prüfen (pmtiles://file://), Screenshots, S4-Analyse.
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: KVM aktivieren
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: App + Test-APK bauen
+        working-directory: worldpulse
+        run: ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest --console=plain
+      - name: S1-Test im Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          ram-size: 8192M
+          disk-size: 12G
+          cores: 4
+          disable-animations: true
+          working-directory: worldpulse
+          script: |
+            adb logcat -c || true
+            ./gradlew :app:connectedDebugAndroidTest --console=plain || echo "S1_TEST_FAILED"
+            adb logcat -d -s S1:I MapLibre:E Mbgl:E AndroidRuntime:E | tail -n 200
+            bash tools/ci_screens.sh ../shots || true
+            mkdir -p ../shots/schemas && cp -r data/schemas/. ../shots/schemas/ || true
+            adb logcat -d -s AndroidRuntime:E | tail -n 50
+            adb logcat -d | grep -iE "litert|AnalysisService|claim_extractor|Exception" | tail -n 60 || true
+      - name: Screenshots in Branch ci-screens
+        run: |
+          ls -R shots || exit 0
+          cd shots && git init -q && git checkout -q -b ci-screens
+          git config user.name "ci" && git config user.email "ci@users.noreply.github.com"
+          git add -A && git commit -qm "Screenshots ${{ github.sha }}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-screens

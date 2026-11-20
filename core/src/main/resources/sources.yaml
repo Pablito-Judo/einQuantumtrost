@@ -1,0 +1,113 @@
+# Quellenregister (SPEC 8). Alle Einträge sind KANDIDATEN (approved: false), bis der Nutzer sie freigibt.
+# Stufen: A = Behörden/Agenturen/offene Daten, B = geprüfte Medien/OSINT/Analyse, C = Social/Video/Parteiquellen.
+# Erreichbarkeit/Format prüft der CI-Schritt "Live-Probe" bei jedem Build (Ergebnis im Log).
+sources:
+  # --- Heimatregion (Heilbronn) ---
+  - id: polizei-hn
+    name: Polizeipräsidium Heilbronn (Presseportal)
+    url: https://www.presseportal.de/rss/dienststelle_110971.rss2
+    type: RSS
+    tier: A
+    lang: de
+    country: DE
+    scope: LANDKREIS
+    interval_min: 30
+  - id: gdelt-heilbronn
+    name: GDELT – Heilbronn
+    url: https://api.gdeltproject.org/api/v2/doc/doc?query=Heilbronn&mode=ArtList&format=json&maxrecords=50&timespan=24h&sort=DateDesc
+    type: GDELT
+    tier: B
+    scope: REGION
+    interval_min: 120
+  # --- Deutschland ---
+  - id: tagesschau
+    name: tagesschau.de
+    url: https://www.tagesschau.de/index~rss2.xml
+    type: RSS
+    tier: B
+    lang: de
+    country: DE
+    scope: LAND
+  - id: dlf
+    name: Deutschlandfunk Nachrichten
+    url: https://www.deutschlandfunk.de/nachrichten-100.rss
+    type: RSS
+    tier: B
+    lang: de
+    country: DE
+    scope: LAND
+  - id: wikinews-de
+    name: Wikinews (de, CC BY)
+    url: https://de.wikinews.org/w/index.php?title=Spezial:Neue_Seiten&feed=atom&namespace=0
+    type: ATOM
+    tier: B
+    lang: de
+    scope: WELT
+    note: "Lizenzsichere Volltextquelle (CC BY 2.5). Live-Probe 20.11.: Feed leer – andere Feed-URL suchen."
+  # --- Welt ---
+  - id: bbc-world
+    name: BBC News World
+    url: https://feeds.bbci.co.uk/news/world/rss.xml
+    type: RSS
+    tier: B
+    lang: en
+    country: GB
+  - id: un-news
+    name: UN News
+    url: https://news.un.org/feed/subscribe/en/news/all/rss.xml
+    type: RSS
+    tier: B
+    lang: en
+  - id: aljazeera
+    name: Al Jazeera English
+    url: https://www.aljazeera.com/xml/rss/all.xml
+    type: RSS
+    tier: B
+    lang: en
+    country: QA
+    state_media: true
+  - id: meduza-en
+    name: Meduza (English)
+    url: https://meduza.io/rss/en/all
+    type: RSS
+    tier: B
+    lang: en
+  - id: kyiv-independent
+    name: The Kyiv Independent
+    url: https://kyivindependent.com/news-archive/rss/
+    type: RSS
+    tier: B
+    lang: en
+    country: UA
+  - id: tass-en
+    name: TASS (English)
+    url: https://tass.com/rss/v2.xml
+    type: RSS
+    tier: C
+    lang: en
+    country: RU
+    state_media: true
+    note: Staatsmedium – nur Claims + eigene Zusammenfassung + Link; Sanktionsstatus vor Freigabe prüfen
+  # --- Offene Daten / Naturgefahren (Primärquellen) ---
+  - id: usgs-45
+    name: USGS Erdbeben M4.5+ (24 h)
+    url: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.atom
+    type: ATOM
+    tier: A
+    lang: en
+    interval_min: 15
+    fulltext: false
+  - id: gdacs
+    name: GDACS Katastrophenmeldungen
+    url: https://www.gdacs.org/xml/rss.xml
+    type: RSS
+    tier: A
+    lang: en
+    interval_min: 30
+    fulltext: false
+  - id: gdelt-conflict
+    name: GDELT – Konflikte (Stichprobe)
+    url: https://api.gdeltproject.org/api/v2/doc/doc?query=(airstrike%20OR%20shelling%20OR%20%22drone%20attack%22)%20sourcelang:english&mode=ArtList&format=json&maxrecords=100&timespan=1h&sort=DateDesc
+    type: GDELT
+    tier: B
+    interval_min: 60
