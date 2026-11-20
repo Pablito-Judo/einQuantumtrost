@@ -9,3 +9,12 @@
 6. Nach ca. 10–12 h (morgens): App öffnen → **„CSV teilen“** → an Claude schicken.
 
 Fertig. Alles andere macht die App selbst.
+
+---
+
+# WorldPulse (S1-Prototyp: Karte, Newsroom, Quellen, Eingang) – ebenfalls ohne PC
+
+1. Im Browser: https://github.com/Pablito-Judo/einQuantumtrost/releases/tag/worldpulse-latest → `worldpulse.apk` installieren.
+2. App öffnen (WLAN an). Sie lädt einmalig ca. 670 MB Offline-Kartendaten (Welt + Heilbronn), Fortschritt oben auf der Karte.
+3. Unten „Quellen“ → „Geprüfte freigeben“ → „Eingang“ → „Jetzt abrufen“: echte Meldungen erscheinen.
+4. Die Pins auf Karte/Newsroom/Analyse sind noch DEMO-Daten (bis Claim-Extraktion + Clustering laufen).
