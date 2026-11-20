@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 rootProject.name = "worldpulse"
 includeBuild("../core")
 include(":data")
-// S1: include(":app")
+include(":app")

@@ -137,6 +137,8 @@ interface UiEventDao {
     /** Newsroom / Canvas-Karte / MapLibre: ein Datenstrom (SPEC 7). */
     @Query("SELECT * FROM ui_event WHERE time >= :since ORDER BY time DESC") fun observeSince(since: Long): Flow<List<UiEventEntity>>
     @Query("DELETE FROM ui_event WHERE time < :before") suspend fun deleteBefore(before: Long): Int
+    @Query("SELECT COUNT(*) FROM ui_event") suspend fun count(): Int
+    @Insert suspend fun insertAll(e: List<UiEventEntity>)
 }
 
 @Dao
